@@ -1,16 +1,20 @@
 
 #include <stdlib.h>
 #include <cuda.h>
-//#include "cuda_call.h"
 #include <stdio.h>
-#define N 512
+#define N (2048 * 2048)
+#define M 512
 
-__global__ void		add(double *a, double *b, double *c)
+__global__ void		add(double *a, double *b, double *c, int n)
 {
-	c[threadIdx.x] = a[threadIdx.x] + b[threadIdx.x];
+	int		index;
+
+	index = threadIdx.x + blockIdx.x * blockDim.x;
+	if (index < n)
+		c[index] = a[index] + b[index];
 }
 
-extern "C" void		call_add(void)
+extern "C" void		call_add(char * str)
 {
 	double *a, *b, *c;
 	double *d_a, *d_b, *d_c;
@@ -34,17 +38,16 @@ extern "C" void		call_add(void)
 	cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
 	cudaMemcpy(d_b, b, size, cudaMemcpyHostToDevice);
 
-	add<<<1,N>>>(d_a, d_b, d_c);
+	add<<<(N + M - 1) / M,M>>>(d_a, d_b, d_c, N);
 
 	cudaMemcpy(c, d_c, size, cudaMemcpyDeviceToHost);
 
 	for (i = 0; i < N; ++i)
-		printf("%f + %f = %f\n", a[i], b[i], c[i]);
+		printf("%s -> %f + %f = %f\n", str, a[i], b[i], c[i]);
 	free(a);
 	free(b);
 	free(c);
 	cudaFree(d_a);
 	cudaFree(d_b);
 	cudaFree(d_c);
-//	return (0);
 }

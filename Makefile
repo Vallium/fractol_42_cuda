@@ -15,12 +15,13 @@ OBJ = 	main.o
 
 FLAGS = -Wall -Werror -Wextra -iquote header -framework OpenGL -framework AppKit #-I/usr/X11/include
 
+LINFTHDR = libft/includes
 LIBFTDIR = libft/
 LIBFT =  $(LIBFTDIR)libft.a
 
 #MLXDIR = minilibx_macos/
 #MLXLIB = $(MLXDIR)libmlx.a
-#LIB = -L/usr/X11/lib -lmlx -lXext -lX11
+LIB = -L/usr/X11/lib -lmlx -lXext -lX11 -I /opt/X11/include/
 
 CUDA=/Developer/NVIDIA/CUDA-5.5
 NVCC=/Developer/NVIDIA/CUDA-5.5/bin/nvcc
@@ -35,7 +36,7 @@ NVCC_FLAGS = -Xcompiler -Werror -Xcompiler -Wall -Xcompiler -Wextra
 all: $(NAME)
 
 $(NAME): $(LIBFT) $(OBJ) $(COBJ) #$(MLXLIB)
-	$(NVCC) $(NVCC_C) $(NVCC_ARCH) $(NVCC_STD) $(NVCC_FRAMEWORK) $(NVCC_LIB) -o $(NAME) $(OBJ) $(LIBFT) $(COBJ) #$(MLXLIB) $(LIB)
+	$(NVCC) $(NVCC_C) $(NVCC_ARCH) $(NVCC_STD) $(NVCC_FRAMEWORK) $(NVCC_LIB) -o $(NAME) $(OBJ) $(LIBFT) $(COBJ) $(LIB)
 
 $(LIBFT):
 	make -C $(LIBFTDIR)
@@ -47,7 +48,7 @@ $(COBJ):
 #	make -C $(MLXDIR)
 
 $(OBJ):
-	gcc $(FLAGS) -iquote $(LIBFTDIR) -iquote $(CUDAHDR) -c $(SOURCE) #-I $(MLXDIR)
+	gcc $(FLAGS) -iquote $(LIBFTDIR) -iquote $(CUDAHDR) -c $(SOURCE) $(LIB) -I libft/includes
 
 clean:
 	rm -f $(OBJ) $(COBJ)

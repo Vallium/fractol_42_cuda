@@ -4,6 +4,6 @@
 # ifdef __cplusplus
 extern "C"
 # endif
-void		call_add(void);
+void		call_add(char *str);
 
 #endif
