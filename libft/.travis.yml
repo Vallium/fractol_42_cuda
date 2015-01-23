@@ -1,0 +1,9 @@
+language: c
+
+compiler:
+  - gcc
+
+install:
+
+script:
+  - make -j
