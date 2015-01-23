@@ -1,2 +1,4 @@
 *.o
 fractol
+*.a
+*.so
