@@ -192,6 +192,26 @@ void		choose_frac(t_all *all)
 		frac_julia(all);
 }
 
+void		test_frac(t_all *all)
+{
+	t_pos		*pt;
+	int		i;
+
+	i = 0;
+	pt = (t_pos *)malloc(sizeof(t_pos));
+	pt->x = 0;
+	while (pt->x < WIN_SZ_X)
+	{
+		pt->y = 0;
+		while (pt->y < WIN_SZ_X)
+		{
+			call_mandelbrot(&i, pt->x, pt->y, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y);
+			rainbow_color((double)i / (double)all->ite_max, all);
+			ft_put_pxl(all, pt);
+		}
+	}
+}
+
 int			loop_hook(t_all *all)
 {
 	if(all->re)
@@ -202,7 +222,7 @@ int			loop_hook(t_all *all)
 		//frac_mandelbrot(all);
 		//frac_julia(all);
 		//choose_frac(all);
-		call_mandelbrot(all);
+		test_frac(all);
 		mlx_put_image_to_window(all->env.mlx, all->env.win, all->img.img, 0, 0);
 		//cartridge(all);
 		all->re = 0;

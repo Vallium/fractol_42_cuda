@@ -59,7 +59,7 @@ typedef struct		s_all
 {
 	t_env			env;
 	t_img			img;
-	float			zoom;
+	double			zoom;
 	t_pos			off;
 	int				ite_max;
 	int				frac_no;
