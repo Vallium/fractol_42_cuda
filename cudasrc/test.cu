@@ -44,14 +44,14 @@ __global__ void			mandelbrot(int	*d_i, double x, double y, double offx, double o
 extern "C" void			call_mandelbrot(int *i, double x, double y, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
 {
 	int		*d_i;
-	double		size;
+	int		size;
 	dim3	block_size(16, 16);
 	dim3	grid_size(WIN_SZ_X / block_size.x, WIN_SZ_Y / block_size.y);
 
-	size = WIN_SZ_Y * WIN_SZ_X * sizeof(double);
-	i = 0;
+	size = sizeof(int);//WIN_SZ_Y * WIN_SZ_X * sizeof(int);
 	cudaMalloc((void **)&d_i, size);
 	mandelbrot<<<grid_size,block_size>>>(d_i, x, y, offx, offy, zoom, ite_max, winszx, winszy);
-	cudaMemcpy(&i, d_i, size, cudaMemcpyDeviceToHost);
+
+	cudaMemcpy(i, d_i, size, cudaMemcpyDeviceToHost);
 	cudaFree(d_i);
 }

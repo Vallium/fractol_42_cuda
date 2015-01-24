@@ -203,12 +203,15 @@ void		test_frac(t_all *all)
 	while (pt->x < WIN_SZ_X)
 	{
 		pt->y = 0;
-		while (pt->y < WIN_SZ_X)
+		while (pt->y < WIN_SZ_Y)
 		{
 			call_mandelbrot(&i, pt->x, pt->y, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y);
 			rainbow_color((double)i / (double)all->ite_max, all);
 			ft_put_pxl(all, pt);
+			printf("%f -> %d\n", pt->y, i);
+			pt->y++;
 		}
+		pt->x++;
 	}
 }
 
