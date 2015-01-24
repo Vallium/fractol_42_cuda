@@ -4,6 +4,6 @@
 # ifdef __cplusplus
 extern "C"
 # endif
-void		call_add(char *str);
+void			call_mandelbrot(t_all *all);
 
 #endif

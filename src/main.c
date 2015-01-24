@@ -118,7 +118,7 @@ void		frac_mandelbrot(t_all *all)
 				z_i = (2 * tmp * z_i) + c_i;
 				i++;
 			}
-			rainbow_color((double)i / (double)all->ite_max, all);
+			rainbow_color(((double)i * 4.0) / (double)all->ite_max, all);
 			ft_put_pxl(all, pt);
 			pt->y++;
 		}
@@ -165,19 +165,6 @@ void		frac_julia(t_all *all)
 	free(pt);
 }
 
-//void		frac_buddhabrot(t_all *all)
-//{
-//	t_pos	*pt;
-//	float	x1;
-//	float	y1;
-//	int		zoom;
-//	int		ite_red;
-//	int		ite_grn;
-//	int		ite_blu;
-//	int		ite_max;
-//
-//}
-
 void		exit_prog(t_all *all)
 {
 	free(all->env.mlx);
@@ -214,7 +201,8 @@ int			loop_hook(t_all *all)
 		ft_bzero(all->img.data, WIN_SZ_X * WIN_SZ_Y * 4);
 		//frac_mandelbrot(all);
 		//frac_julia(all);
-		choose_frac(all);
+		//choose_frac(all);
+		call_mandelbrot(all);
 		mlx_put_image_to_window(all->env.mlx, all->env.win, all->img.img, 0, 0);
 		//cartridge(all);
 		all->re = 0;

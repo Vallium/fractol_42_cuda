@@ -20,8 +20,8 @@
 # include <math.h>
 # include <stdlib.h>
 
-# define WIN_SZ_X 800
-# define WIN_SZ_Y 600
+# define WIN_SZ_X 512
+# define WIN_SZ_Y 512
 # define ZOOM 1.1
 
 typedef unsigned char	t_byte;
@@ -51,8 +51,8 @@ typedef struct		s_img
 
 typedef struct		s_pos
 {
-	double				x;
-	double				y;
+	double			x;
+	double			y;
 }					t_pos;
 
 typedef struct		s_all

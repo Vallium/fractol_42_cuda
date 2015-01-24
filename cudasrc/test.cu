@@ -5,49 +5,64 @@
 #define N (2048 * 2048)
 #define M 512
 
-__global__ void		add(double *a, double *b, double *c, int n)
+__global__ void			madelbrot(int	*d_i, t_pos *pt, t_all *all)
 {
-	int		index;
+	double	x1;
+	double	y1;
+	double	c_r;
+	double	c_i;
+	double	z_r;
+	double	z_i;
+	double	tmp;
+	int		i;
+	int		row;  // WIDTH
+	int		col;  // HEIGHT
+	int		idx;
+	row = blockIdx.y * blockDim.y + threadIdx.y;
+	col = blockIdx.x * blockDim.x + threadIdx.x;
+	index = row * WIN_SZ_X + col;
+	if(col >= WIN_SZ_X || row >= WIN_SZ_Y)
+		return;
 
-	index = threadIdx.x + blockIdx.x * blockDim.x;
-	if (index < n)
-		c[index] = a[index] + b[index];
+	x1 = -2.1;
+	y1 = -1.2;
+	c_r = (((double)pt->x + (double)all->off.x) / (double)all->zoom) + x1;
+	c_i = (((double)pt->y + (double)all->off.y) / (double)all->zoom) + y1;
+	z_r = 0.0;
+	z_i = 0.0;
+	i = 0;
+	while((z_r * z_r + z_i * z_i) < 4 && i < all->ite_max)
+	{
+		tmp = z_r;
+		z_r = (z_r * z_r) - (z_i * z_i) + c_r;
+		z_i = (2 * tmp * z_i) + c_i;
+		i++;
+	}
+	d_i[index] = i;
 }
 
-extern "C" void		call_add(char * str)
+extern "C" void			call_mandelbrot(t_all *all)
 {
-	double *a, *b, *c;
-	double *d_a, *d_b, *d_c;
-	double size = N * sizeof(double);
+	t_pos	*pt;
 	int		i;
+	int		*d_i;
+	dim3	block_size(16, 16);
+	dim3	grid_size(WIN_SZ_X / block_size.x, WIN_SZ_Y / block_size.y);
 
-	cudaMalloc((void **)&d_a, size);
-	cudaMalloc((void **)&d_b, size);
-	cudaMalloc((void **)&d_c, size);
-
-	a = (double *)malloc(size);
-	b = (double *)malloc(size);
-	c = (double *)malloc(size);
-
-	for (i = 0; i < N; ++i)
+	size = WIN_SZ_Y * WIN_SZ_X * sizeof(int);
+	i = 0;
+	cudaMalloc((void **)&d_i, size);
+	pt = (t_pos *)malloc(sizeof(t_pos));
+	pt->x = 0;
+	while (pt->x < WIN_SZ_X)
 	{
-		a[i] = rand() % 10;
-		b[i] = rand() % 10;
+		pt->y = 0;
+		while (pt->y < WIN_SZ_X)
+		{
+			mandelbrot<<<grid_size,block_size>>>(d_i, pt, all);
+			cudaMemcpy(&i, d_i, size, cudaMemcpyDeviceToHost);
+			rainbow_color((double)i / (double)all->ite_max, all);
+			ft_put_pxl(all, pt);
+		}
 	}
-
-	cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
-	cudaMemcpy(d_b, b, size, cudaMemcpyHostToDevice);
-
-	add<<<(N + M - 1) / M,M>>>(d_a, d_b, d_c, N);
-
-	cudaMemcpy(c, d_c, size, cudaMemcpyDeviceToHost);
-
-	for (i = 0; i < N; ++i)
-		printf("%s -> %f + %f = %f\n", str, a[i], b[i], c[i]);
-	free(a);
-	free(b);
-	free(c);
-	cudaFree(d_a);
-	cudaFree(d_b);
-	cudaFree(d_c);
 }
