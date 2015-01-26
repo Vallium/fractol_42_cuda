@@ -195,24 +195,29 @@ void		choose_frac(t_all *all)
 void		test_frac(t_all *all)
 {
 	t_pos		*pt;
-	int		i;
+	int		*i;
+	int		o = 0;
 
-	i = 0;
+
 	pt = (t_pos *)malloc(sizeof(t_pos));
+	i = malloc(WIN_SZ_Y * WIN_SZ_X * sizeof(int));
+	call_mandelbrot(i, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y);
 	pt->x = 0;
 	while (pt->x < WIN_SZ_X)
 	{
 		pt->y = 0;
 		while (pt->y < WIN_SZ_Y)
 		{
-			call_mandelbrot(&i, pt->x, pt->y, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y);
-			rainbow_color((double)i / (double)all->ite_max, all);
+			//rainbow_color((double)i[o] / (double)all->ite_max, all);
+			printf("%d\n", i[o]);
+			//if (i[o] == all->ite_max)
 			ft_put_pxl(all, pt);
-			printf("%f -> %d\n", pt->y, i);
+			//printf("%f -> %d\n", pt->y, i);
 			pt->y++;
 		}
 		pt->x++;
 	}
+	o++;
 }
 
 int			loop_hook(t_all *all)

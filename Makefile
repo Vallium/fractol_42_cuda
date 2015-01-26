@@ -48,7 +48,7 @@ $(COBJ):
 #	make -C $(MLXDIR)
 
 $(OBJ):
-	gcc $(FLAGS) -iquote $(LIBFTDIR) -iquote $(CUDAHDR) -c $(SOURCE) $(LIB) -I libft/includes
+	gcc $(FLAGS) -iquote $(LIBFTDIR) -iquote $(CUDAHDR) -c $(SOURCE) $(LIB) -I libft/includes -g
 
 clean:
 	rm -f $(OBJ) $(COBJ)

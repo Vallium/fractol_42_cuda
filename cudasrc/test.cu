@@ -5,7 +5,7 @@
 # define WIN_SZ_X 512
 # define WIN_SZ_Y 512
 
-__global__ void			mandelbrot(int	*d_i, double x, double y, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
+__global__ void			mandelbrot(int	*d_i, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
 {
 	double	x1;
 	double	y1;
@@ -26,8 +26,8 @@ __global__ void			mandelbrot(int	*d_i, double x, double y, double offx, double o
 
 	x1 = -2.1;
 	y1 = -1.2;
-	c_r = (((double)x + (double)offx) / (double)zoom) + x1;
-	c_i = (((double)y + (double)offy) / (double)zoom) + y1;
+	c_r = (((double)col + (double)offx) / (double)zoom) + x1;
+	c_i = (((double)row + (double)offy) / (double)zoom) + y1;
 	z_r = 0.0;
 	z_i = 0.0;
 	i = 0;
@@ -41,16 +41,16 @@ __global__ void			mandelbrot(int	*d_i, double x, double y, double offx, double o
 	d_i[index] = i;
 }
 
-extern "C" void			call_mandelbrot(int *i, double x, double y, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
+extern "C" void			call_mandelbrot(int *i, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
 {
 	int		*d_i;
 	int		size;
 	dim3	block_size(16, 16);
 	dim3	grid_size(WIN_SZ_X / block_size.x, WIN_SZ_Y / block_size.y);
 
-	size = sizeof(int);//WIN_SZ_Y * WIN_SZ_X * sizeof(int);
+	size = WIN_SZ_Y * WIN_SZ_X * sizeof(int);
 	cudaMalloc((void **)&d_i, size);
-	mandelbrot<<<grid_size,block_size>>>(d_i, x, y, offx, offy, zoom, ite_max, winszx, winszy);
+	mandelbrot<<<grid_size,block_size>>>(d_i, offx, offy, zoom, ite_max, winszx, winszy);
 
 	cudaMemcpy(i, d_i, size, cudaMemcpyDeviceToHost);
 	cudaFree(d_i);
