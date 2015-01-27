@@ -37,6 +37,18 @@ int			ft_color_to_int(t_color color)
 	return (c);
 }
 
+t_color		ft_int_to_color(int i)
+{
+	t_color		c;
+	c.b = i & 0xFF;
+	i = i >> 8;
+	c.g = i & 0xFF;
+	i = i >> 8;
+	c.r = i & 0xFF;
+
+	return (c);
+}
+
 void		rainbow_color(double pos, t_all *all)
 {
 	t_color			c;
@@ -192,6 +204,23 @@ void		choose_frac(t_all *all)
 		frac_julia(all);
 }
 
+void		color_filter(t_all *all, int *i, t_pos *pt)
+{
+	t_color	colors[4];
+	t_color	final;
+
+	colors[0] = ft_int_to_color(i[(int)pt->x - 1 + ((int)pt->y * WIN_SZ_X)]);
+	colors[1] = ft_int_to_color(i[(int)pt->x + (((int)pt->y + 1) * WIN_SZ_X)]);
+	colors[2] = ft_int_to_color(i[(int)pt->x + 1 + ((int)pt->y * WIN_SZ_X)]);
+	colors[3] = ft_int_to_color(i[(int)pt->x + (((int)pt->y - 1) * WIN_SZ_X)]);
+
+	final.r = (colors[0].r + colors[1].r + colors[2].r + colors[3].r) / 4;
+	final.g = (colors[0].g + colors[1].g + colors[2].g + colors[3].g) / 4;
+	final.b = (colors[0].b + colors[1].b + colors[2].b + colors[3].b) / 4;
+
+	all->img.clrline = ft_color_to_int(final);
+}
+
 void		test_frac(t_all *all)
 {
 	t_pos		*pt;
@@ -202,23 +231,38 @@ void		test_frac(t_all *all)
 	pt = (t_pos *)malloc(sizeof(t_pos));
 	i = malloc(WIN_SZ_Y * WIN_SZ_X * sizeof(int));
 	call_mandelbrot(i, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y);
-	pt->x = 0;
-	while (pt->x < WIN_SZ_X)
+	pt->y = 0;
+	while (pt->y < WIN_SZ_Y)
 	{
-		pt->y = 0;
-		while (pt->y < WIN_SZ_Y)
+		pt->x = 0;
+		while (pt->x < WIN_SZ_X)
 		{
 			rainbow_color((double)i[o] / (double)all->ite_max, all);
 			//printf("%d\n", i[o]);
 			//if (i[o] == all->ite_max)
 			ft_put_pxl(all, pt);
 			//printf("%f -> %d\n", pt->y, i);
-			pt->y++;
+			pt->x++;
 			o++;
 		}
-		pt->x++;
+		pt->y++;
 	}
-	o++;
+	pt->x = 1;
+	if (all->filter > 0)
+	{
+		while (pt->x < WIN_SZ_X - 1)
+		{
+			pt->y = 1;
+			while (pt->y < WIN_SZ_Y - 1)
+			{
+				color_filter(all, (int*)all->img.data, pt);
+				ft_put_pxl(all, pt);
+				//printf("%f -> %d\n", pt->y, i);
+				pt->y++;
+			}
+			pt->x++;
+		}
+	}
 }
 
 int			loop_hook(t_all *all)
@@ -292,6 +336,11 @@ int			key_hook(int keycode, t_all *all)
 		all->frac_no = 2;
 		all->re = 1;
 	}
+	else if (keycode == 'f')
+	{
+		all->filter = -all->filter;
+		all->re = 1;
+	}
 	return (0);
 }
 
@@ -335,10 +384,11 @@ int			main(void)
 	all->zoom = 300;
 	all->off.x = 0;
 	all->off.y = 0;
-	all->ite_max = 200;
+	all->ite_max = 1000;
 	all->frac_no = 1;
 	all->re = 1;
 	all->f = 0;
+	all->filter = -1;
 
 	mlx_hook(all->env.win, MotionNotify, PointerMotionMask, mouse_move, all);
 	mlx_key_hook(all->env.win, key_hook, all);

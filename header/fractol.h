@@ -67,6 +67,7 @@ typedef struct		s_all
 	float			c_r;
 	float			c_i;
 	int				f;
+	int				filter;
 }					t_all;
 
 #endif
