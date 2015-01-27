@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <cuda.h>
 #include <stdio.h>
-# define WIN_SZ_X 512
-# define WIN_SZ_Y 512
+# define WIN_SZ_X 1024
+# define WIN_SZ_Y 1024
 
 __global__ void			mandelbrot(int	*d_i, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
 {

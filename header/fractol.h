@@ -20,8 +20,8 @@
 # include <math.h>
 # include <stdlib.h>
 
-# define WIN_SZ_X 512
-# define WIN_SZ_Y 512
+# define WIN_SZ_X 1024
+# define WIN_SZ_Y 1024
 # define ZOOM 1.1
 
 typedef unsigned char	t_byte;

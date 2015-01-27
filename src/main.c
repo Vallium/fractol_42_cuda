@@ -54,7 +54,7 @@ void		rainbow_color(double pos, t_all *all)
 	f = m - n;
 	t = (int)(f * 255);
 	if (n == 0)
-		c = ft_rgb_to_color(15, t, 0);
+		c = ft_rgb_to_color(255, t, 0);
 	else if (n == 1)
 		c = ft_rgb_to_color(255 - t, 255, 0);
 	else if (n == 2)
@@ -64,9 +64,9 @@ void		rainbow_color(double pos, t_all *all)
 	else if (n == 4)
 		c = ft_rgb_to_color(t, 0, 255);
 	else if (n == 5)
-		c = ft_rgb_to_color(0, 0, 255 - t);
+		c = ft_rgb_to_color(255, 0, 255 - t);
 	else
-		c = ft_rgb_to_color(57, 22, 74);
+		c = ft_rgb_to_color(0, 0, 0);
 	all->img.clrline = ft_color_to_int(c);
 }
 
@@ -335,7 +335,7 @@ int			main(void)
 	all->zoom = 300;
 	all->off.x = 0;
 	all->off.y = 0;
-	all->ite_max = 500;
+	all->ite_max = 200;
 	all->frac_no = 1;
 	all->re = 1;
 	all->f = 0;
