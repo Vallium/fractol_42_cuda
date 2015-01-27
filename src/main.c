@@ -208,12 +208,13 @@ void		test_frac(t_all *all)
 		pt->y = 0;
 		while (pt->y < WIN_SZ_Y)
 		{
-			//rainbow_color((double)i[o] / (double)all->ite_max, all);
-			printf("%d\n", i[o]);
+			rainbow_color((double)i[o] / (double)all->ite_max, all);
+			//printf("%d\n", i[o]);
 			//if (i[o] == all->ite_max)
 			ft_put_pxl(all, pt);
 			//printf("%f -> %d\n", pt->y, i);
 			pt->y++;
+			o++;
 		}
 		pt->x++;
 	}
@@ -334,7 +335,7 @@ int			main(void)
 	all->zoom = 300;
 	all->off.x = 0;
 	all->off.y = 0;
-	all->ite_max = 100;
+	all->ite_max = 500;
 	all->frac_no = 1;
 	all->re = 1;
 	all->f = 0;
