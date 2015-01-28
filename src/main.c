@@ -195,14 +195,6 @@ int			mouse_move(int x, int y, t_all *all)
 	return (0);
 }
 
-// void		choose_frac(t_all *all)
-// {
-// 	if (all->frac_no == 1)
-// 		frac_mandelbrot(all);
-// 	else if (all->frac_no == 2)
-// 		frac_julia(all);
-// }
-
 void		color_filter(t_all *all, int *i, t_pos *pt)
 {
 	t_color	colors[4];
@@ -295,6 +287,13 @@ void		cuda_julia(t_all *all)
 	free(pt);
 }
 
+void		choose_frac(t_all *all)
+{
+	if (all->frac_no == 1)
+		cuda_mandelbrot(all);
+	else if (all->frac_no == 2)
+		cuda_julia(all);
+}
 
 int			loop_hook(t_all *all)
 {
@@ -303,13 +302,9 @@ int			loop_hook(t_all *all)
 		if (all->re == -1)
 			exit_prog(all);
 		ft_bzero(all->img.data, WIN_SZ_X * WIN_SZ_Y * 4);
-		//frac_mandelbrot(all);
-		//frac_julia(all);
-		//choose_frac(all);
-		//cuda_mandelbrot(all);
-		cuda_julia(all);
+		choose_frac(all);
 		mlx_put_image_to_window(all->env.mlx, all->env.win, all->img.img, 0, 0);
-		//cartridge(all);
+		cartridge(all);
 		all->re = 0;
 	}
 	return (0);
@@ -318,7 +313,7 @@ int			loop_hook(t_all *all)
 int			expose_hook(t_all *all)
 {
 	mlx_put_image_to_window(all->env.mlx, all->env.win, all->img.img, 0, 0);
-	//cartridge(all);
+	cartridge(all);
 	return(0);
 }
 
@@ -328,14 +323,14 @@ int			key_hook(int keycode, t_all *all)
 	(void)all;
 	if (keycode == 65307)
 		all->re = -1;
-	else if (keycode == 'a')//ite ++
+	else if (keycode == 'a' && all->ite_max < 20000)//ite ++
 	{
-		all->ite_max += 500;
+		all->ite_max += 250;
 		all->re = 1;
 	}
-	else if (keycode == 'd')//ite --
+	else if (keycode == 'd' && all->ite_max > 250)//ite --
 	{
-		all->ite_max -= 500;
+		all->ite_max -= 250;
 		all->re = 1;
 	}
 	else if (keycode == 65362)//up
@@ -416,7 +411,7 @@ int			main(void)
 	all->zoom = 300;
 	all->off.x = 0;
 	all->off.y = 0;
-	all->ite_max = 100;
+	all->ite_max = 250;
 	all->frac_no = 1;
 	all->re = 1;
 	all->f = 0;
