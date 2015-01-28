@@ -13,7 +13,6 @@
 #include "cudahead.h"
 #include <stdlib.h>
 #include <stdio.h>
-#define N 512
 #include "fractol.h"
 
 t_color		ft_rgb_to_color(unsigned char r, unsigned char g, unsigned char b)
@@ -96,86 +95,86 @@ void		cartridge(t_all *all)
 	"+------------------------         ------------------------+");
 }
 
-void		frac_mandelbrot(t_all *all)
-{
-	t_pos	*pt;
-	double	x1;
-	double	y1;
-	double	c_r;
-	double	c_i;
-	double	z_r;
-	double	z_i;
-	double	tmp;
-	int		i;
+// void		frac_mandelbrot(t_all *all)
+// {
+// 	t_pos	*pt;
+// 	double	x1;
+// 	double	y1;
+// 	double	c_r;
+// 	double	c_i;
+// 	double	z_r;
+// 	double	z_i;
+// 	double	tmp;
+// 	int		i;
+//
+//
+// 	pt = (t_pos *)malloc(sizeof(t_pos));
+// 	pt->x = 0;
+// 	x1 = -2.1;
+// 	y1 = -1.2;
+// 	while (pt->x < WIN_SZ_X)
+// 	{
+// 		pt->y = 0;
+// 		while (pt->y < WIN_SZ_Y)
+// 		{
+// 			c_r = (((double)pt->x + (double)all->off.x) / (double)all->zoom) + x1;
+// 			c_i = (((double)pt->y + (double)all->off.y) / (double)all->zoom) + y1;
+// 			z_r = 0.0;
+// 			z_i = 0.0;
+// 			i = 0;
+// 			while((z_r * z_r + z_i * z_i) < 4 && i < all->ite_max)
+// 			{
+// 				tmp = z_r;
+// 				z_r = (z_r * z_r) - (z_i * z_i) + c_r;
+// 				z_i = (2 * tmp * z_i) + c_i;
+// 				i++;
+// 			}
+// 			rainbow_color(((double)i * 4.0) / (double)all->ite_max, all);
+// 			ft_put_pxl(all, pt);
+// 			pt->y++;
+// 		}
+// 		pt->x++;
+// 	}
+// 	free(pt);
+// }
 
-
-	pt = (t_pos *)malloc(sizeof(t_pos));
-	pt->x = 0;
-	x1 = -2.1;
-	y1 = -1.2;
-	while (pt->x < WIN_SZ_X)
-	{
-		pt->y = 0;
-		while (pt->y < WIN_SZ_Y)
-		{
-			c_r = (((double)pt->x + (double)all->off.x) / (double)all->zoom) + x1;
-			c_i = (((double)pt->y + (double)all->off.y) / (double)all->zoom) + y1;
-			z_r = 0.0;
-			z_i = 0.0;
-			i = 0;
-			while((z_r * z_r + z_i * z_i) < 4 && i < all->ite_max)
-			{
-				tmp = z_r;
-				z_r = (z_r * z_r) - (z_i * z_i) + c_r;
-				z_i = (2 * tmp * z_i) + c_i;
-				i++;
-			}
-			rainbow_color(((double)i * 4.0) / (double)all->ite_max, all);
-			ft_put_pxl(all, pt);
-			pt->y++;
-		}
-		pt->x++;
-	}
-	free(pt);
-}
-
-void		frac_julia(t_all *all)
-{
-	t_pos	*pt;
-	float	x1;
-	float	y1;
-	float	z_r;
-	float	z_i;
-	float	tmp;
-	int		i;
-
-	pt = (t_pos *)malloc(sizeof(t_pos));
-	x1 = -1.4;
-	y1 = -1.2;
-	pt->x = 0;
-	while (pt->x < WIN_SZ_X)
-	{
-		pt->y = 0;
-		while (pt->y < WIN_SZ_Y)
-		{
-			z_r = (float)(pt->x + all->off.x) / all->zoom + x1;
-			z_i = (float)(pt->y + all->off.y) / all->zoom + y1;
-			i = 0;
-			while ((z_r * z_r + z_i * z_i) < 4 && i < all->ite_max)
-			{
-				tmp = z_r;
-				z_r = (z_r * z_r) - (z_i * z_i) + all->c_r;
-				z_i = (2 * tmp * z_i) + all->c_i;
-				i++;
-			}
-			rainbow_color((double)i / (double)all->ite_max, all);
-			ft_put_pxl(all, pt);
-			pt->y++;
-		}
-		pt->x++;
-	}
-	free(pt);
-}
+// void		frac_julia(t_all *all)
+// {
+// 	t_pos	*pt;
+// 	float	x1;
+// 	float	y1;
+// 	float	z_r;
+// 	float	z_i;
+// 	float	tmp;
+// 	int		i;
+//
+// 	pt = (t_pos *)malloc(sizeof(t_pos));
+// 	x1 = -1.4;
+// 	y1 = -1.2;
+// 	pt->x = 0;
+// 	while (pt->x < WIN_SZ_X)
+// 	{
+// 		pt->y = 0;
+// 		while (pt->y < WIN_SZ_Y)
+// 		{
+// 			z_r = (float)(pt->x + all->off.x) / all->zoom + x1;
+// 			z_i = (float)(pt->y + all->off.y) / all->zoom + y1;
+// 			i = 0;
+// 			while ((z_r * z_r + z_i * z_i) < 4 && i < all->ite_max)
+// 			{
+// 				tmp = z_r;
+// 				z_r = (z_r * z_r) - (z_i * z_i) + all->c_r;
+// 				z_i = (2 * tmp * z_i) + all->c_i;
+// 				i++;
+// 			}
+// 			rainbow_color((double)i / (double)all->ite_max, all);
+// 			ft_put_pxl(all, pt);
+// 			pt->y++;
+// 		}
+// 		pt->x++;
+// 	}
+// 	free(pt);
+// }
 
 void		exit_prog(t_all *all)
 {
@@ -189,20 +188,20 @@ int			mouse_move(int x, int y, t_all *all)
 {
 	if(!all->f)
 	{
-		all->c_r = (float)(x - WIN_SZ_X / 2) / all->zoom;
-		all->c_i = (float)(y - WIN_SZ_Y / 2) / all->zoom;
+		all->c_r = (double)(x - WIN_SZ_X / 2) / all->zoom;
+		all->c_i = (double)(y - WIN_SZ_Y / 2) / all->zoom;
 		all->re = 1;
 	}
 	return (0);
 }
 
-void		choose_frac(t_all *all)
-{
-	if (all->frac_no == 1)
-		frac_mandelbrot(all);
-	else if (all->frac_no == 2)
-		frac_julia(all);
-}
+// void		choose_frac(t_all *all)
+// {
+// 	if (all->frac_no == 1)
+// 		frac_mandelbrot(all);
+// 	else if (all->frac_no == 2)
+// 		frac_julia(all);
+// }
 
 void		color_filter(t_all *all, int *i, t_pos *pt)
 {
@@ -221,7 +220,7 @@ void		color_filter(t_all *all, int *i, t_pos *pt)
 	all->img.clrline = ft_color_to_int(final);
 }
 
-void		test_frac(t_all *all)
+void		cuda_mandelbrot(t_all *all)
 {
 	t_pos		*pt;
 	int		*i;
@@ -258,6 +257,45 @@ void		test_frac(t_all *all)
 		}
 }
 
+void		cuda_julia(t_all *all)
+{
+	t_pos		*pt;
+	int		*i;
+	int		o = 0;
+
+	pt = ft_malloc(sizeof(t_pos));
+	i = malloc(WIN_SZ_Y * WIN_SZ_X * sizeof(int));
+	call_julia(i, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y, all->c_i, all->c_r);
+	pt->y = 0;
+	while (pt->y < WIN_SZ_Y)
+	{
+		pt->x = 0;
+		while (pt->x < WIN_SZ_X)
+		{
+			rainbow_color((double)i[o] / (double)all->ite_max, all);
+			ft_put_pxl(all, pt);
+			pt->x++;
+			o++;
+		}
+		pt->y++;
+	}
+	pt->x = 1;
+	if (all->filter > 0)
+		while (pt->x < WIN_SZ_X - 1)
+		{
+			pt->y = 1;
+			while (pt->y < WIN_SZ_Y - 1)
+			{
+				color_filter(all, (int*)all->img.data, pt);
+				ft_put_pxl(all, pt);
+				pt->y++;
+			}
+			pt->x++;
+	}
+	free(pt);
+}
+
+
 int			loop_hook(t_all *all)
 {
 	if(all->re)
@@ -268,7 +306,8 @@ int			loop_hook(t_all *all)
 		//frac_mandelbrot(all);
 		//frac_julia(all);
 		//choose_frac(all);
-		test_frac(all);
+		//cuda_mandelbrot(all);
+		cuda_julia(all);
 		mlx_put_image_to_window(all->env.mlx, all->env.win, all->img.img, 0, 0);
 		//cartridge(all);
 		all->re = 0;

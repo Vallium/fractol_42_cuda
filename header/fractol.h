@@ -64,8 +64,8 @@ typedef struct		s_all
 	int				ite_max;
 	int				frac_no;
 	int				re;
-	float			c_r;
-	float			c_i;
+	double			c_r;
+	double			c_i;
 	int				f;
 	int				filter;
 }					t_all;
