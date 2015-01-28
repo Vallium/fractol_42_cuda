@@ -66,7 +66,7 @@ void		rainbow_color(double pos, t_all *all)
 	f = m - n;
 	t = (int)(f * 255);
 	if (n == 0)
-		c = ft_rgb_to_color(255, t, 0);
+		c = ft_rgb_to_color(0, t, 0);
 	else if (n == 1)
 		c = ft_rgb_to_color(255 - t, 255, 0);
 	else if (n == 2)
@@ -227,8 +227,7 @@ void		test_frac(t_all *all)
 	int		*i;
 	int		o = 0;
 
-
-	pt = (t_pos *)malloc(sizeof(t_pos));
+	pt = ft_malloc(sizeof(t_pos));
 	i = malloc(WIN_SZ_Y * WIN_SZ_X * sizeof(int));
 	call_mandelbrot(i, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y);
 	pt->y = 0;
@@ -238,10 +237,7 @@ void		test_frac(t_all *all)
 		while (pt->x < WIN_SZ_X)
 		{
 			rainbow_color((double)i[o] / (double)all->ite_max, all);
-			//printf("%d\n", i[o]);
-			//if (i[o] == all->ite_max)
 			ft_put_pxl(all, pt);
-			//printf("%f -> %d\n", pt->y, i);
 			pt->x++;
 			o++;
 		}
@@ -249,7 +245,6 @@ void		test_frac(t_all *all)
 	}
 	pt->x = 1;
 	if (all->filter > 0)
-	{
 		while (pt->x < WIN_SZ_X - 1)
 		{
 			pt->y = 1;
@@ -257,12 +252,10 @@ void		test_frac(t_all *all)
 			{
 				color_filter(all, (int*)all->img.data, pt);
 				ft_put_pxl(all, pt);
-				//printf("%f -> %d\n", pt->y, i);
 				pt->y++;
 			}
 			pt->x++;
 		}
-	}
 }
 
 int			loop_hook(t_all *all)
@@ -298,12 +291,12 @@ int			key_hook(int keycode, t_all *all)
 		all->re = -1;
 	else if (keycode == 'a')//ite ++
 	{
-		all->ite_max += 5;
+		all->ite_max += 500;
 		all->re = 1;
 	}
 	else if (keycode == 'd')//ite --
 	{
-		all->ite_max -= 5;
+		all->ite_max -= 500;
 		all->re = 1;
 	}
 	else if (keycode == 65362)//up
@@ -384,7 +377,7 @@ int			main(void)
 	all->zoom = 300;
 	all->off.x = 0;
 	all->off.y = 0;
-	all->ite_max = 1000;
+	all->ite_max = 100;
 	all->frac_no = 1;
 	all->re = 1;
 	all->f = 0;
