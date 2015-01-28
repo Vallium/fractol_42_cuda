@@ -247,6 +247,7 @@ void		cuda_mandelbrot(t_all *all)
 			}
 			pt->x++;
 		}
+	free(pt);
 }
 
 void		cuda_julia(t_all *all)
