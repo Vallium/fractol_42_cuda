@@ -24,8 +24,8 @@ __global__ void		julia(int	*d_i, double offx, double offy, double zoom, int ite_
 
 	x1 = -1.4;
 	y1 = -1.2;
-	z_r = (((double)col + (double)offx) / (double)zoom) + x1;
-	z_i = (((double)row + (double)offy) / (double)zoom) + y1;
+	z_r = (((double)col + offx) / zoom) + x1;
+	z_i = (((double)row + offy) / zoom) + y1;
 	i = 0;
 	while((z_r * z_r + z_i * z_i) < 4 && i < ite_max)
 	{

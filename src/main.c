@@ -136,8 +136,8 @@ void		frac_mandelbrot(t_all *all)
 		pt->y = 0;
 		while (pt->y < WIN_SZ_Y)
 		{
-			c_r = (((double)pt->x + (double)all->off.x) / (double)all->zoom) + x1;
-			c_i = (((double)pt->y + (double)all->off.y) / (double)all->zoom) + y1;
+			c_r = ((pt->x + all->off.x) / all->zoom) + x1;
+			c_i = ((pt->y + all->off.y) / all->zoom) + y1;
 			z_r = 0.0;
 			z_i = 0.0;
 			i = 0;
@@ -176,8 +176,8 @@ void		frac_julia(t_all *all)
 		pt->y = 0;
 		while (pt->y < WIN_SZ_Y)
 		{
-			z_r = (double)(pt->x + all->off.x) / all->zoom + x1;
-			z_i = (double)(pt->y + all->off.y) / all->zoom + y1;
+			z_r = (pt->x + all->off.x) / all->zoom + x1;
+			z_i = (pt->y + all->off.y) / all->zoom + y1;
 			i = 0;
 			while ((z_r * z_r + z_i * z_i) < 4 && i < all->ite_max)
 			{

@@ -26,8 +26,8 @@ __global__ void			mandelbrot(int	*d_i, double offx, double offy, double zoom, in
 
 	x1 = -2.1;
 	y1 = -1.2;
-	c_r = (((double)col + (double)offx) / (double)zoom) + x1;
-	c_i = (((double)row + (double)offy) / (double)zoom) + y1;
+	c_r = (((double)col + offx) / zoom) + x1;
+	c_i = (((double)row + offy) / zoom) + y1;
 	z_r = 0.0;
 	z_i = 0.0;
 	i = 0;
