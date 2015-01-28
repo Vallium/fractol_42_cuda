@@ -68,6 +68,8 @@ typedef struct		s_all
 	double			c_i;
 	int				f;
 	int				filter;
+	int				cuda_frac;
+	char			name[50];
 }					t_all;
 
 #endif
