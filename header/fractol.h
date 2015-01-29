@@ -22,7 +22,8 @@
 
 # define WIN_SZ_X 1024
 # define WIN_SZ_Y 1024
-# define ZOOM 1.1
+# define ZOOM 1.01
+# define UINT unsigned int
 
 typedef unsigned char	t_byte;
 
@@ -70,6 +71,9 @@ typedef struct		s_all
 	int				filter;
 	int				cuda_frac;
 	char			name[50];
+	UINT			colors[256];
+	int				inc;
+	int				tab[WIN_SZ_X * WIN_SZ_Y * sizeof(int)];
 }					t_all;
 
 #endif

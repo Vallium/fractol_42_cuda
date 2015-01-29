@@ -5,7 +5,7 @@
 # define WIN_SZ_X 1024
 # define WIN_SZ_Y 1024
 
-__global__ void			mandelbrot(int	*d_i, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
+__global__ void			mandelbrot(int	*d_t, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
 {
 	double	x1;
 	double	y1;
@@ -13,7 +13,8 @@ __global__ void			mandelbrot(int	*d_i, double offx, double offy, double zoom, in
 	double	c_i;
 	double	z_r;
 	double	z_i;
-	double	tmp;
+	double	d_i;
+	double	d_r;
 	int		i;
 	int		row;  // WIDTH
 	int		col;  // HEIGHT
@@ -28,17 +29,20 @@ __global__ void			mandelbrot(int	*d_i, double offx, double offy, double zoom, in
 	y1 = -1.2;
 	c_r = (((double)col + offx) / zoom) + x1;
 	c_i = (((double)row + offy) / zoom) + y1;
-	z_r = 0.0;
-	z_i = 0.0;
+	z_r = c_r;
+	z_i = c_i;
+	d_r = z_r * z_r;
+	d_i = z_i * z_i;
 	i = 0;
-	while((z_r * z_r + z_i * z_i) < 4 && i < ite_max)
+	while((d_r + d_i) < 4 && i < ite_max)
 	{
-		tmp = z_r;
-		z_r = (z_r * z_r) - (z_i * z_i) + c_r;
-		z_i = (2 * tmp * z_i) + c_i;
+		z_i = (2 * z_r * z_i) + c_i;
+		z_r = d_r - d_i + c_r;
+		d_r = z_r * z_r;
+		d_i = z_i * z_i;
 		i++;
 	}
-	d_i[index] = i;
+	d_t[index] = i;
 }
 
 extern "C" void			call_mandelbrot(int *i, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)

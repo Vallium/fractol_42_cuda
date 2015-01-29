@@ -81,10 +81,67 @@ void		rainbow_color(double pos, t_all *all)
 	all->img.clrline = ft_color_to_int(c);
 }
 
+UINT		rainbow_cycle(int t)
+{
+	float	t1;
+	float	t2;
+	float	t3;
+	float	b;
+	float	r;
+	float	g;
+	UINT	ret;
+
+	t1 = (float)t;
+	t2 = t1 * t1;
+	t3 = t2 * t1;
+	// r = (UINT)(0.0006999039880667829 * t2 + 1.606915057301892
+	// * t1 + 1.3923862764832569) << 16;
+	// r |= (UINT)(-0.0013845965252153088 * t2 + 0.5915680189515256
+	// * t1 + 0.40980909236807206) << 8 & 0xFF00;
+	// if (t < 148)
+	// 	b = -0.004625052958621659 * t2 + 0.9308637803377247
+	// 	* t1 + 0.07375370710351631;
+	// else if (t < 234)
+	// 	b = -0.00016615254056580355 * t3 + 0.08323447324745645
+	// 	* t2 -13.981893104491228 * t1 + 844.7842542383135;
+	// else
+	// 	b = 0;
+	// r |= (UINT)b & 0xFF;
+
+	if (t < 1)
+		r = 0;
+	else if (t < 151)
+		r = 0.0006999039880667829 * t2 + 1.606915057301892 * t1 + 1.3923862764832569;
+	else
+		r = 255;
+	if (t < 1)
+		g = 0;
+	else
+		g = -0.0013845965252153088 * t2 + 0.5915680189515256 * t1 + 0.40980909236807206;
+	if (t < 1)
+		b = 0;
+	else if (t < 148)
+		b = -0.004625052958621659 * t2 + 0.9308637803377247 * t1 + 0.07375370710351631;
+	else if (t < 234)
+		b = -0.00016615254056580355 * t3 + 0.08323447324745645 * t2 - 13.981893104491228 * t1 + 844.7842542383135;
+	else
+		b = 0;
+	ret = ((UINT)r << 16) | ((UINT)g << 8 & 0x00FF00) | ((UINT)b & 0x0000FF);
+	return (ret);
+}
+
 void		ft_put_pxl(t_all *all, t_pos *pt)
 {
-	if(pt->x > 0  && pt->x < WIN_SZ_X && pt->y > 0 && pt->y < WIN_SZ_Y)
-		ft_memcpy(&all->img.data[((int)pt->x *4) + ((int)pt->y * all->img.sizeline)], &all->img.clrline, (size_t)sizeof(int));
+	int		i;
+	UINT	color;
+
+	color = all->img.clrline;
+	i = pt->y * all->img.sizeline + pt->x * all->inc;
+	all->img.data[i] = mlx_get_color_value(all->env.mlx, color);
+	all->img.data[i + 1] = mlx_get_color_value(all->env.mlx, color >> 8);
+	all->img.data[i + 2] = mlx_get_color_value(all->env.mlx, color >> 16);
+	// if(pt->x > 0  && pt->x < WIN_SZ_X && pt->y > 0 && pt->y < WIN_SZ_Y)
+	// 	ft_memcpy(&all->img.data[((int)pt->x *4) + ((int)pt->y * all->img.sizeline)], &all->img.clrline, (size_t)sizeof(int));
 }
 
 void		cartridge(t_all *all)
@@ -123,7 +180,8 @@ void		frac_mandelbrot(t_all *all)
 	double	c_i;
 	double	z_r;
 	double	z_i;
-	double	tmp;
+	double	d_r;
+	double	d_i;
 	int		i;
 
 
@@ -134,22 +192,29 @@ void		frac_mandelbrot(t_all *all)
 	while (pt->x < WIN_SZ_X)
 	{
 		pt->y = 0;
+		c_r = ((pt->x + all->off.x) / all->zoom) + x1;
+		c_i = ((pt->y + all->off.y) / all->zoom) + y1;
 		while (pt->y < WIN_SZ_Y)
 		{
-			c_r = ((pt->x + all->off.x) / all->zoom) + x1;
-			c_i = ((pt->y + all->off.y) / all->zoom) + y1;
-			z_r = 0.0;
-			z_i = 0.0;
+			c_i += 1 / all->zoom;
+			z_r = c_r;
+			z_i = c_i;
+			d_r = z_r * z_r;
+			d_i = z_i * z_i;
 			i = 0;
-			while((z_r * z_r + z_i * z_i) < 4 && i < all->ite_max)
+			while((d_r + d_i) < 4 && i < all->ite_max)
 			{
-				tmp = z_r;
-				z_r = (z_r * z_r) - (z_i * z_i) + c_r;
-				z_i = (2 * tmp * z_i) + c_i;
+				z_i = (2 * z_r * z_i) + c_i;
+				z_r = d_r - d_i + c_r;
+				d_r = z_r * z_r;
+				d_i = z_i * z_i;
 				i++;
 			}
-			rainbow_color(((double)i * 4.0) / (double)all->ite_max, all);
-			ft_put_pxl(all, pt);
+
+			all->img.clrline = all->colors[i & 255];
+			//rainbow_color(((double)i * 4.0) / (double)all->ite_max, all);
+			//if (i < all->ite_max)
+				ft_put_pxl(all, pt);
 			pt->y++;
 		}
 		pt->x++;
@@ -218,12 +283,10 @@ void		color_filter(t_all *all, int *i, t_pos *pt)
 {
 	t_color	colors[4];
 	t_color	final;
-
 	colors[0] = ft_int_to_color(i[(int)pt->x - 1 + ((int)pt->y * WIN_SZ_X)]);
 	colors[1] = ft_int_to_color(i[(int)pt->x + (((int)pt->y + 1) * WIN_SZ_X)]);
 	colors[2] = ft_int_to_color(i[(int)pt->x + 1 + ((int)pt->y * WIN_SZ_X)]);
 	colors[3] = ft_int_to_color(i[(int)pt->x + (((int)pt->y - 1) * WIN_SZ_X)]);
-
 	final.r = (colors[0].r + colors[1].r + colors[2].r + colors[3].r) / 4;
 	final.g = (colors[0].g + colors[1].g + colors[2].g + colors[3].g) / 4;
 	final.b = (colors[0].b + colors[1].b + colors[2].b + colors[3].b) / 4;
@@ -233,80 +296,88 @@ void		color_filter(t_all *all, int *i, t_pos *pt)
 
 void		cuda_mandelbrot(t_all *all)
 {
-	t_pos		*pt;
-	int		*i;
+	t_pos		pt;
+	//int		*i;
 	int		o = 0;
 
-	pt = ft_malloc(sizeof(t_pos));
-	i = malloc(WIN_SZ_Y * WIN_SZ_X * sizeof(int));
-	call_mandelbrot(i, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y);
-	pt->y = 0;
-	while (pt->y < WIN_SZ_Y)
+	//pt = ft_malloc(sizeof(t_pos));
+	//i = malloc(WIN_SZ_Y * WIN_SZ_X * sizeof(int));
+	call_mandelbrot(all->tab, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y);
+	pt.y = 0;
+	while (pt.y < WIN_SZ_Y)
 	{
-		pt->x = 0;
-		while (pt->x < WIN_SZ_X)
+		pt.x = 0;
+		while (pt.x < WIN_SZ_X)
 		{
-			rainbow_color((double)i[o] / (double)all->ite_max, all);
-			ft_put_pxl(all, pt);
-			pt->x++;
+			if (all->tab[o] == all->ite_max)
+				all->img.clrline = 0x000000;
+			else
+				all->img.clrline = all->colors[all->tab[o] & 255];
+			//rainbow_color((double)i[o] / (double)all->ite_max, all);
+			ft_put_pxl(all, &pt);
+			pt.x++;
 			o++;
 		}
-		pt->y++;
+		pt.y++;
 	}
-	pt->x = 1;
-	if (all->filter > 0)
-		while (pt->x < WIN_SZ_X - 1)
-		{
-			pt->y = 1;
-			while (pt->y < WIN_SZ_Y - 1)
-			{
-				color_filter(all, (int*)all->img.data, pt);
-				ft_put_pxl(all, pt);
-				pt->y++;
-			}
-			pt->x++;
-		}
-	free(pt);
-	free(i);
+	// pt.x = 1;
+	// if (all->filter > 0)
+	// 	while (pt.x < WIN_SZ_X - 1)
+	// 	{
+	// 		pt.y = 1;
+	// 		while (pt.y < WIN_SZ_Y - 1)
+	// 		{
+	// 			color_filter(all, (int*)all->img.data, pt);
+	// 			ft_put_pxl(all, pt);
+	// 			pt.y++;
+	// 		}
+	// 		pt.x++;
+	// 	}
+	//free(pt);
+	//free(i);
 }
 
 void		cuda_julia(t_all *all)
 {
-	t_pos		*pt;
-	int		*i;
-	int		o = 0;
+	t_pos		pt;
+	int		o;
 
-	pt = ft_malloc(sizeof(t_pos));
-	i = malloc(WIN_SZ_Y * WIN_SZ_X * sizeof(int));
-	call_julia(i, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y, all->c_i, all->c_r);
-	pt->y = 0;
-	while (pt->y < WIN_SZ_Y)
+	// pt = ft_malloc(sizeof(t_pos));
+	// i = malloc(WIN_SZ_Y * WIN_SZ_X * sizeof(int));
+	call_julia(all->tab, all->off.x, all->off.y, all->zoom, all->ite_max, WIN_SZ_X, WIN_SZ_Y, all->c_i, all->c_r);
+	pt.y = 0;
+	o = 0;
+	while (pt.y < WIN_SZ_Y)
 	{
-		pt->x = 0;
-		while (pt->x < WIN_SZ_X)
+		pt.x = 0;
+		while (pt.x < WIN_SZ_X)
 		{
-			rainbow_color((double)i[o] / (double)all->ite_max, all);
-			ft_put_pxl(all, pt);
-			pt->x++;
+			if (all->tab[o] == all->ite_max)
+				all->img.clrline = 0x000000;
+			else
+				all->img.clrline = all->colors[all->tab[o] & 255];
+			//rainbow_color((double)i[o] / (double)all->ite_max, all);
+			ft_put_pxl(all, &pt);
+			pt.x++;
 			o++;
 		}
-		pt->y++;
+		pt.y++;
 	}
-	pt->x = 1;
-	if (all->filter > 0)
-		while (pt->x < WIN_SZ_X - 1)
-		{
-			pt->y = 1;
-			while (pt->y < WIN_SZ_Y - 1)
-			{
-				color_filter(all, (int*)all->img.data, pt);
-				ft_put_pxl(all, pt);
-				pt->y++;
-			}
-			pt->x++;
-	}
-	free(pt);
-	free(i);
+	// pt.x = 1;
+	// if (all->filter > 0)
+	// 	while (pt.x < WIN_SZ_X - 1)
+	// 	{
+	// 		pt.y = 1;
+	// 		while (pt.y < WIN_SZ_Y - 1)
+	// 		{
+	// 			color_filter(all, (int*)all->img.data, pt);
+	// 			ft_put_pxl(all, pt);
+	// 			pt.y++;
+	// 		}
+	// 		pt.x++;
+	// }
+	// free(pt);
+	// free(i);
 }
 
 void		choose_frac(t_all *all)
@@ -329,7 +400,7 @@ int			loop_hook(t_all *all)
 	{
 		if (all->re == -1)
 			exit_prog(all);
-		ft_bzero(all->img.data, WIN_SZ_X * WIN_SZ_Y * 4);
+	//	ft_bzero(all->img.data, WIN_SZ_X * WIN_SZ_Y * 4);
 		choose_frac(all);
 		mlx_put_image_to_window(all->env.mlx, all->env.win, all->img.img, 0, 0);
 		cartridge(all);
@@ -446,6 +517,7 @@ void		all_init(t_all *all)
 	all->re = 1;
 	all->f = 1;
 	all->filter = -1;
+	all->inc = all->img.bpp / 8;
 }
 
 void		ft_usage(void)
@@ -477,11 +549,20 @@ void		frac_init(t_all *all, int argc, char *argv[])
 	}
 }
 
+#include <stdio.h>
+
 int			main(int argc, char *argv[])
 {
 	t_all		*all;
+	int			i;
 
 	all = ft_malloc(sizeof(t_all));
+	i = -1;
+	while (++i < 128)
+		all->colors[i] = rainbow_cycle(i);
+	i = -1;
+	while (++i < 128)
+		all->colors[128 + i] = rainbow_cycle(256 - i);
 	frac_init(all, argc, argv);
 	mlx_hook(all->env.win, MotionNotify, PointerMotionMask, mouse_move, all);
 	mlx_key_hook(all->env.win, key_hook, all);
