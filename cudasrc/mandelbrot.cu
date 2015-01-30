@@ -5,7 +5,7 @@
 # define WIN_SZ_X 1024
 # define WIN_SZ_Y 1024
 
-__global__ void			mandelbrot(int	*d_t, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
+__global__ void			mandelbrot(int	*d_tab, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
 {
 	double	x1;
 	double	y1;
@@ -42,20 +42,20 @@ __global__ void			mandelbrot(int	*d_t, double offx, double offy, double zoom, in
 		d_i = z_i * z_i;
 		i++;
 	}
-	d_t[index] = i;
+	d_tab[index] = i;
 }
 
-extern "C" void			call_mandelbrot(int *i, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
+extern "C" void			call_mandelbrot(int *tab, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
 {
-	int		*d_i;
+	int		*d_tab;
 	int		size;
 	dim3	block_size(16, 16);
 	dim3	grid_size(WIN_SZ_X / block_size.x, WIN_SZ_Y / block_size.y);
 
 	size = WIN_SZ_Y * WIN_SZ_X * sizeof(int);
-	cudaMalloc((void **)&d_i, size);
-	mandelbrot<<<grid_size,block_size>>>(d_i, offx, offy, zoom, ite_max, winszx, winszy);
+	cudaMalloc((void **)&d_tab, size);
+	mandelbrot<<<grid_size,block_size>>>(d_tab, offx, offy, zoom, ite_max, winszx, winszy);
 
-	cudaMemcpy(i, d_i, size, cudaMemcpyDeviceToHost);
-	cudaFree(d_i);
+	cudaMemcpy(tab, d_tab, size, cudaMemcpyDeviceToHost);
+	cudaFree(d_tab);
 }
