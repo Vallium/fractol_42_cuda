@@ -15,15 +15,15 @@
 #include <stdio.h>
 #include "fractol.h"
 
-t_color		ft_rgb_to_color(unsigned char r, unsigned char g, unsigned char b)
-{
-	t_color		color;
-
-	color.r = r;
-	color.g = g;
-	color.b = b;
-	return (color);
-}
+// t_color		ft_rgb_to_color(unsigned char r, unsigned char g, unsigned char b)
+// {
+// 	t_color		color;
+//
+// 	color.r = r;
+// 	color.g = g;
+// 	color.b = b;
+// 	return (color);
+// }
 
 int			ft_color_to_int(t_color color)
 {
@@ -49,88 +49,75 @@ t_color		ft_int_to_color(int i)
 	return (c);
 }
 
-void		rainbow_color(double pos, t_all *all)
-{
-	t_color			c;
-	unsigned char	nmax;
-	double			m;
-	int				n;
-	double			f;
-	unsigned char	t;
+// void		rainbow_color(double pos, t_all *all)
+// {
+// 	t_color			c;
+// 	unsigned char	nmax;
+// 	double			m;
+// 	int				n;
+// 	double			f;
+// 	unsigned char	t;
+//
+// 	if (pos > 1.0)
+// 		pos = (pos - (int)pos) == 0.0 ? 1.0 : (pos - (int)pos);
+// 	nmax = 6;
+// 	m = nmax * pos;
+// 	n = (int)m;
+// 	f = m - n;
+// 	t = (int)(f * 255);
+// 	if (n == 0)
+// 		c = ft_rgb_to_color(0, t, 0);
+// 	else if (n == 1)
+// 		c = ft_rgb_to_color(255 - t, 255, 0);
+// 	else if (n == 2)
+// 		c = ft_rgb_to_color(0, 255, t);
+// 	else if (n == 3)
+// 		c = ft_rgb_to_color(0, 255 - t, 255);
+// 	else if (n == 4)
+// 		c = ft_rgb_to_color(t, 0, 255);
+// 	else if (n == 5)
+// 		c = ft_rgb_to_color(255, 0, 255 - t);
+// 	else
+// 		c = ft_rgb_to_color(0, 0, 0);
+// 	all->img.clrline = ft_color_to_int(c);
+// }
 
-	if (pos > 1.0)
-		pos = (pos - (int)pos) == 0.0 ? 1.0 : (pos - (int)pos);
-	nmax = 6;
-	m = nmax * pos;
-	n = (int)m;
-	f = m - n;
-	t = (int)(f * 255);
-	if (n == 0)
-		c = ft_rgb_to_color(0, t, 0);
-	else if (n == 1)
-		c = ft_rgb_to_color(255 - t, 255, 0);
-	else if (n == 2)
-		c = ft_rgb_to_color(0, 255, t);
-	else if (n == 3)
-		c = ft_rgb_to_color(0, 255 - t, 255);
-	else if (n == 4)
-		c = ft_rgb_to_color(t, 0, 255);
-	else if (n == 5)
-		c = ft_rgb_to_color(255, 0, 255 - t);
+void		color_fill(int t, t_color *color, t_pwr p)
+{
+	if (0 <= t && t < 60)
+		color->r = -0.00018094381200185858 * p.t3 + 0.011590107725603593 * p.t2 +
+		0.1833371893610704 * t + 52;
+	else if (60 <= t && t < 104)
+		color->r = -0.0013237924865831855 * p.t3 + 0.2778533094812168 * p.t2 +
+		-19.741144901609974 * t + 535.1359570661889;
 	else
-		c = ft_rgb_to_color(0, 0, 0);
-	all->img.clrline = ft_color_to_int(c);
+		color->r = 0;
+	if (0 <= t && t < 16)
+		color->g = 0;
+	else if (16 <= t && t < 210)
+		color->g = 0.000039395117125758106 * p.t2 + 1.2892809386010193 * t +
+		-19.639683498985086;
+	else
+		color->g = 255;
+	if (0 <= t && t < 129)
+		color->b = 0;
+	else if (129 <= t && t < 202)
+		color->b = 0.00019290123456790166 * p.t3 + -0.0928819444444442 * p.t2 +
+		18.07638888888897 * t + -1196.3046875;
+	else
+		color->b = 255;
 }
 
 UINT		rainbow_cycle(int t)
 {
-	float	t1;
-	float	t2;
-	float	t3;
-	float	b;
-	float	r;
-	float	g;
-	UINT	ret;
+	t_pwr	pwr;
+	t_color	color;
 
-	t1 = (float)t;
-	t2 = t1 * t1;
-	t3 = t2 * t1;
-	// r = 0;
-	// if (0 <= t && t < 209)
-	// 	g = 0.003528670055615052 * t2 + 0.687812343037689 * t +
-	// 	24.999999999999996;
-	// else
-	// 	g = 255;
-	// if (0 <= t && t < 87)
-	// 	b = 0;
-	// else if (87 <= t && t < 183)
-	// 	b = 0.00006248820977174108 * t3 + -0.02397391327781806 * t2 +
-	// 	5.55881690112377 * t + -340.30719439728364;
-	// else
-	// 	b = 255;
-
-	if (0 <= t && t < 60)
-		r = -0.00018094381200185858 * t3 + 0.011590107725603593 * t2 + 0.1833371893610704 * t + 52;
-	else if (60 <= t && t < 104)
-		r = -0.0013237924865831855 * t3 + 0.2778533094812168 * t2 + -19.741144901609974 * t + 535.1359570661889;
-	else
-		r = 0;
-
-	if (0 <= t && t < 16)
-		g = 0;
-	else if (16 <= t && t < 210)
-		g = 0.000039395117125758106 * t2 + 1.2892809386010193 * t + -19.639683498985086;
-	else
-		g = 255;
-
-	if (0 <= t && t < 129)
-		b = 0;
-	else if (129 <= t && t < 202)
-		b = 0.00019290123456790166 * t3 + -0.0928819444444442 * t2 + 18.07638888888897 * t + -1196.3046875;
-	else
-		b = 255;
-	ret = ((UINT)r << 16) | ((UINT)g << 8 & 0x00FF00) | ((UINT)b & 0x0000FF);
-	return (ret);
+	//pwr.t1 = (float)t;
+	pwr.t2 = t * t;
+	pwr.t3 = pwr.t2 * t;
+	color_fill(t, &color, pwr);
+	return (ft_color_to_int(color));
 }
 
 void		ft_put_pxl(t_all *all, t_pos *pt)
@@ -170,6 +157,37 @@ void		cartridge(t_all *all)
 		"Zoom : Scroll Mouse .");
 	mlx_string_put(all->env.mlx, all->env.win, 10, 150, 0xF65B0A,\
 		"Exit : esc .");
+}
+
+void		color_filter(t_all *all, int *i, t_pos *pt)
+{
+	t_color		colors[4];
+	t_color		final;
+
+	colors[0] = ft_int_to_color(i[(int)pt->x - 1 + ((int)pt->y * WIN_SZ_X)]);
+	colors[1] = ft_int_to_color(i[(int)pt->x + (((int)pt->y + 1) * WIN_SZ_X)]);
+	colors[2] = ft_int_to_color(i[(int)pt->x + 1 + ((int)pt->y * WIN_SZ_X)]);
+	colors[3] = ft_int_to_color(i[(int)pt->x + (((int)pt->y - 1) * WIN_SZ_X)]);
+	final.r = (colors[0].r + colors[1].r + colors[2].r + colors[3].r) / 4;
+	final.g = (colors[0].g + colors[1].g + colors[2].g + colors[3].g) / 4;
+	final.b = (colors[0].b + colors[1].b + colors[2].b + colors[3].b) / 4;
+	all->img.clrline = ft_color_to_int(final);
+}
+
+void		color_renorm(t_all *all, t_pos pt)
+{
+	pt.x = 1;
+	while (pt.x < WIN_SZ_X - 1)
+	{
+		pt.y = 1;
+		while (pt.y < WIN_SZ_Y - 1)
+		{
+			color_filter(all, (int*)all->img.data, &pt);
+			ft_put_pxl(all, &pt);
+			pt.y++;
+		}
+		pt.x++;
+	}
 }
 
 void		frac_mandelbrot(t_all *all)
@@ -248,7 +266,10 @@ void		frac_julia(t_all *all)
 				z_i = (2 * tmp * z_i) + all->c_i;
 				i++;
 			}
-			rainbow_color((double)i / (double)all->ite_max, all);
+			if (i == all->ite_max)
+				all->img.clrline = 0x282828;
+			else
+				all->img.clrline = all->colors[i & 255];
 			ft_put_pxl(all, &pt);
 			pt.y++;
 		}
@@ -273,37 +294,6 @@ int			mouse_move(int x, int y, t_all *all)
 		all->re = 1;
 	}
 	return (0);
-}
-
-void		color_filter(t_all *all, int *i, t_pos *pt)
-{
-	t_color		colors[4];
-	t_color		final;
-
-	colors[0] = ft_int_to_color(i[(int)pt->x - 1 + ((int)pt->y * WIN_SZ_X)]);
-	colors[1] = ft_int_to_color(i[(int)pt->x + (((int)pt->y + 1) * WIN_SZ_X)]);
-	colors[2] = ft_int_to_color(i[(int)pt->x + 1 + ((int)pt->y * WIN_SZ_X)]);
-	colors[3] = ft_int_to_color(i[(int)pt->x + (((int)pt->y - 1) * WIN_SZ_X)]);
-	final.r = (colors[0].r + colors[1].r + colors[2].r + colors[3].r) / 4;
-	final.g = (colors[0].g + colors[1].g + colors[2].g + colors[3].g) / 4;
-	final.b = (colors[0].b + colors[1].b + colors[2].b + colors[3].b) / 4;
-	all->img.clrline = ft_color_to_int(final);
-}
-
-void		color_renorm(t_all *all, t_pos pt)
-{
-	pt.x = 1;
-	while (pt.x < WIN_SZ_X - 1)
-	{
-		pt.y = 1;
-		while (pt.y < WIN_SZ_Y - 1)
-		{
-			color_filter(all, (int*)all->img.data, &pt);
-			ft_put_pxl(all, &pt);
-			pt.y++;
-		}
-		pt.x++;
-	}
 }
 
 void		cuda_mandelbrot(t_all *all)

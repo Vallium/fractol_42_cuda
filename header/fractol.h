@@ -25,13 +25,20 @@
 # define ZOOM 1.01
 # define UINT unsigned int
 
-typedef unsigned char	t_byte;
+//typedef unsigned char	t_byte;
+
+typedef struct		s_pwr
+{
+//	float	t1;
+	float	t2;
+	float	t3;
+}					t_pwr;
 
 typedef struct		s_color
 {
-	t_byte			r;
-	t_byte			g;
-	t_byte			b;
+	float			r;
+	float			g;
+	float			b;
 }					t_color;
 
 typedef struct		s_env
