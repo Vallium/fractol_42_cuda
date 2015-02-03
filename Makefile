@@ -5,11 +5,13 @@ SRCDIR = src
 CUDASRC = cudasrc
 CUDAHDR = cudaheader
 
-CSRC =	$(CUDASRC)/mandelbrot.cu \
-		$(CUDASRC)/julia.cu
+CSRC =	$(CUDASRC)/mandelbrot.cu	\
+		$(CUDASRC)/julia.cu			\
+		$(CUDASRC)/douady.cu
 
-COBJ =	mandelbrot.o \
-		julia.o
+COBJ =	mandelbrot.o	\
+		julia.o			\
+		douady.o
 
 SOURCE = 	$(SRCDIR)/main.c
 

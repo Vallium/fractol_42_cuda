@@ -352,6 +352,34 @@ void		cuda_julia(t_all *all)
 		color_renorm(all, pt);
 }
 
+void		cuda_douady(t_all *all)
+{
+	t_pos		pt;
+	int			o;
+
+	o = 0;
+	call_douady(all->tab, all->off.x, all->off.y, all->zoom, all->ite_max,
+	WIN_SZ_X, WIN_SZ_Y);
+	pt.y = 0;
+	while (pt.y < WIN_SZ_Y)
+	{
+		pt.x = 0;
+		while (pt.x < WIN_SZ_X)
+		{
+			if (all->tab[o] == all->ite_max)
+				all->img.clrline = 0x151515;
+			else
+				all->img.clrline = all->colors[all->tab[o] & 255];
+			ft_put_pxl(all, &pt);
+			pt.x++;
+			o++;
+		}
+		pt.y++;
+	}
+	if (all->filter > 0)
+		color_renorm(all, pt);
+}
+
 void		choose_frac(t_all *all)
 {
 	if (all->frac_no == 1)
@@ -363,6 +391,11 @@ void		choose_frac(t_all *all)
 	{
 		!all->cuda_frac ? frac_julia(all) : cuda_julia(all);
 		ft_strcpy(all->name, "Fractal name: Julia");
+	}
+	else if (all->frac_no == 3)
+	{
+		!all->cuda_frac ? frac_julia(all) : cuda_douady(all);
+		ft_strcpy(all->name, "Fractal name: Douady Rabbit");
 	}
 }
 
@@ -410,6 +443,8 @@ int			key_hook(int keycode, t_all *all)
 		all->frac_no = 1;
 	else if (keycode == 50)
 		all->frac_no = 2;
+	else if (keycode == 51)
+		all->frac_no = 3;
 	else if (keycode == 'f')
 		all->filter = -all->filter;
 	all->re = 1;
