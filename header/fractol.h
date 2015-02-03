@@ -80,6 +80,7 @@ typedef struct		s_all
 	char			name[50];
 	UINT			colors[256];
 	int				inc;
+	int				color;
 	int				tab[WIN_SZ_X * WIN_SZ_Y * sizeof(int)];
 }					t_all;
 

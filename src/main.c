@@ -15,15 +15,15 @@
 #include <stdio.h>
 #include "fractol.h"
 
-// t_color		ft_rgb_to_color(unsigned char r, unsigned char g, unsigned char b)
-// {
-// 	t_color		color;
-//
-// 	color.r = r;
-// 	color.g = g;
-// 	color.b = b;
-// 	return (color);
-// }
+t_color		ft_rgb_to_color(unsigned char r, unsigned char g, unsigned char b)
+{
+	t_color		color;
+
+	color.r = r;
+	color.g = g;
+	color.b = b;
+	return (color);
+}
 
 int			ft_color_to_int(t_color color)
 {
@@ -49,38 +49,38 @@ t_color		ft_int_to_color(int i)
 	return (c);
 }
 
-// void		rainbow_color(double pos, t_all *all)
-// {
-// 	t_color			c;
-// 	unsigned char	nmax;
-// 	double			m;
-// 	int				n;
-// 	double			f;
-// 	unsigned char	t;
-//
-// 	if (pos > 1.0)
-// 		pos = (pos - (int)pos) == 0.0 ? 1.0 : (pos - (int)pos);
-// 	nmax = 6;
-// 	m = nmax * pos;
-// 	n = (int)m;
-// 	f = m - n;
-// 	t = (int)(f * 255);
-// 	if (n == 0)
-// 		c = ft_rgb_to_color(0, t, 0);
-// 	else if (n == 1)
-// 		c = ft_rgb_to_color(255 - t, 255, 0);
-// 	else if (n == 2)
-// 		c = ft_rgb_to_color(0, 255, t);
-// 	else if (n == 3)
-// 		c = ft_rgb_to_color(0, 255 - t, 255);
-// 	else if (n == 4)
-// 		c = ft_rgb_to_color(t, 0, 255);
-// 	else if (n == 5)
-// 		c = ft_rgb_to_color(255, 0, 255 - t);
-// 	else
-// 		c = ft_rgb_to_color(0, 0, 0);
-// 	all->img.clrline = ft_color_to_int(c);
-// }
+void		rainbow_color(double pos, t_all *all)
+{
+	t_color			c;
+	unsigned char	nmax;
+	double			m;
+	int				n;
+	double			f;
+	unsigned char	t;
+
+	if (pos > 1.0)
+		pos = (pos - (int)pos) == 0.0 ? 1.0 : (pos - (int)pos);
+	nmax = 6;
+	m = nmax * pos;
+	n = (int)m;
+	f = m - n;
+	t = (int)(f * 255);
+	if (n == 0)
+		c = ft_rgb_to_color(0, t, 0);
+	else if (n == 1)
+		c = ft_rgb_to_color(255 - t, 255, 0);
+	else if (n == 2)
+		c = ft_rgb_to_color(0, 255, t);
+	else if (n == 3)
+		c = ft_rgb_to_color(0, 255 - t, 255);
+	else if (n == 4)
+		c = ft_rgb_to_color(t, 0, 255);
+	else if (n == 5)
+		c = ft_rgb_to_color(255, 0, 255 - t);
+	else
+		c = ft_rgb_to_color(0, 0, 0);
+	all->img.clrline = ft_color_to_int(c);
+}
 
 void		color_fill(int t, t_color *color, t_pwr p)
 {
@@ -190,6 +190,19 @@ void		color_renorm(t_all *all, t_pos pt)
 	}
 }
 
+void		color_frac(int	i, t_all *all)
+{
+	if (all->color > 0)
+	{
+		if (i == all->ite_max)
+			all->img.clrline = 0x151515;
+			else
+				all->img.clrline = all->colors[i & 255];
+	}
+	else
+		rainbow_color(((double)i * 4.0) / (double)all->ite_max, all);
+}
+
 void		frac_mandelbrot(t_all *all)
 {
 	t_pos	pt;
@@ -227,10 +240,7 @@ void		frac_mandelbrot(t_all *all)
 				d_i = z_i * z_i;
 				i++;
 			}
-			if (i == all->ite_max)
-				all->img.clrline = 0x282828;
-			else
-				all->img.clrline = all->colors[i & 255];
+			color_frac(i, all);
 			ft_put_pxl(all, &pt);
 			pt.y++;
 		}
@@ -266,10 +276,47 @@ void		frac_julia(t_all *all)
 				z_i = (2 * tmp * z_i) + all->c_i;
 				i++;
 			}
-			if (i == all->ite_max)
-				all->img.clrline = 0x282828;
-			else
-				all->img.clrline = all->colors[i & 255];
+			color_frac(i, all);
+			ft_put_pxl(all, &pt);
+			pt.y++;
+		}
+		pt.x++;
+	}
+}
+
+void		frac_douady(t_all *all)
+{
+	t_pos	pt;
+	double	x1;
+	double	y1;
+	double	c_r;
+	double	c_i;
+	double	z_r;
+	double	z_i;
+	double	tmp;
+	int		i;
+
+	x1 = -1.4;
+	y1 = -1.2;
+	c_r = -0.123;
+	c_i = 0.745;
+	pt.x = 0;
+	while (pt.x < WIN_SZ_X)
+	{
+		pt.y = 0;
+		while (pt.y < WIN_SZ_Y)
+		{
+			z_r = (pt.x + all->off.x) / all->zoom + x1;
+			z_i = (pt.y + all->off.y) / all->zoom + y1;
+			i = 0;
+			while ((z_r * z_r + z_i * z_i) < 4 && i < all->ite_max)
+			{
+				tmp = z_r;
+				z_r = (z_r * z_r) - (z_i * z_i) + c_r;
+				z_i = (2 * tmp * z_i) + c_i;
+				i++;
+			}
+			color_frac(i, all);
 			ft_put_pxl(all, &pt);
 			pt.y++;
 		}
@@ -310,10 +357,7 @@ void		cuda_mandelbrot(t_all *all)
 		pt.x = 0;
 		while (pt.x < WIN_SZ_X)
 		{
-			if (all->tab[o] == all->ite_max)
-				all->img.clrline = 0x151515;
-			else
-				all->img.clrline = all->colors[all->tab[o] & 255];
+			color_frac(all->tab[o], all);
 			ft_put_pxl(all, &pt);
 			pt.x++;
 			o++;
@@ -338,10 +382,7 @@ void		cuda_julia(t_all *all)
 		pt.x = 0;
 		while (pt.x < WIN_SZ_X)
 		{
-			if (all->tab[o] == all->ite_max)
-				all->img.clrline = 0x151515;
-			else
-				all->img.clrline = all->colors[all->tab[o] & 255];
+			color_frac(all->tab[o], all);
 			ft_put_pxl(all, &pt);
 			pt.x++;
 			o++;
@@ -366,10 +407,7 @@ void		cuda_douady(t_all *all)
 		pt.x = 0;
 		while (pt.x < WIN_SZ_X)
 		{
-			if (all->tab[o] == all->ite_max)
-				all->img.clrline = 0x151515;
-			else
-				all->img.clrline = all->colors[all->tab[o] & 255];
+			color_frac(all->tab[o], all);
 			ft_put_pxl(all, &pt);
 			pt.x++;
 			o++;
@@ -394,7 +432,7 @@ void		choose_frac(t_all *all)
 	}
 	else if (all->frac_no == 3)
 	{
-		!all->cuda_frac ? frac_julia(all) : cuda_douady(all);
+		!all->cuda_frac ? frac_douady(all) : cuda_douady(all);
 		ft_strcpy(all->name, "Fractal name: Douady Rabbit");
 	}
 }
@@ -447,6 +485,8 @@ int			key_hook(int keycode, t_all *all)
 		all->frac_no = 3;
 	else if (keycode == 'f')
 		all->filter = -all->filter;
+	else if (keycode == 'c')
+		all->color = -all->color;
 	all->re = 1;
 	return (0);
 }
@@ -498,13 +538,14 @@ void		all_init(t_all *all)
 	all->re = 1;
 	all->f = 1;
 	all->filter = -1;
+	all->color = 1;
 	all->inc = all->img.bpp / 8;
 }
 
 void		ft_usage(void)
 {
 	ft_putendl_fd("fractol: illegal options\nusage: ./fractol [-cpu / -gpu]\
-	[Fractal Name ...]\nfractals supported: mandelbrot, julia, newton", 2);
+	[Fractal Name ...]\nfractals supported: mandelbrot, julia, douady", 2);
 	exit(2);
 }
 
@@ -524,6 +565,8 @@ void		frac_init(t_all *all, int argc, char *argv[])
 			all->frac_no = 1;
 		else if (ft_strcmp(argv[2], "julia") == 0)
 			all->frac_no = 2;
+		else if (ft_strcmp(argv[2], "douady") == 0)
+			all->frac_no = 3;
 		else
 			ft_usage();
 		all_init(all);
