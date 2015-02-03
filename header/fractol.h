@@ -25,11 +25,8 @@
 # define ZOOM 1.01
 # define UINT unsigned int
 
-//typedef unsigned char	t_byte;
-
 typedef struct		s_pwr
 {
-//	float	t1;
 	float	t2;
 	float	t3;
 }					t_pwr;
@@ -62,6 +59,30 @@ typedef struct		s_pos
 	double			x;
 	double			y;
 }					t_pos;
+
+typedef struct		s_rbow
+{
+	t_color			c;
+	unsigned char	nmax;
+	double			m;
+	int				n;
+	double			f;
+	unsigned char	t;
+}					t_rbow;
+
+typedef struct		s_frac
+{
+	t_pos			pt;
+	double			x1;
+	double			y1;
+	double			c_r;
+	double			c_i;
+	double			z_r;
+	double			z_i;
+	double			d_r;
+	double			d_i;
+	int				i;
+}					t_frac;
 
 typedef struct		s_all
 {

@@ -51,42 +51,37 @@ t_color		ft_int_to_color(int i)
 
 void		rainbow_color(double pos, t_all *all)
 {
-	t_color			c;
-	unsigned char	nmax;
-	double			m;
-	int				n;
-	double			f;
-	unsigned char	t;
+	t_rbow	rbow;
 
 	if (pos > 1.0)
 		pos = (pos - (int)pos) == 0.0 ? 1.0 : (pos - (int)pos);
-	nmax = 6;
-	m = nmax * pos;
-	n = (int)m;
-	f = m - n;
-	t = (int)(f * 255);
-	if (n == 0)
-		c = ft_rgb_to_color(0, t, 0);
-	else if (n == 1)
-		c = ft_rgb_to_color(255 - t, 255, 0);
-	else if (n == 2)
-		c = ft_rgb_to_color(0, 255, t);
-	else if (n == 3)
-		c = ft_rgb_to_color(0, 255 - t, 255);
-	else if (n == 4)
-		c = ft_rgb_to_color(t, 0, 255);
-	else if (n == 5)
-		c = ft_rgb_to_color(255, 0, 255 - t);
+	rbow.nmax = 6;
+	rbow.m = rbow.nmax * pos;
+	rbow.n = (int)rbow.m;
+	rbow.f = rbow.m - rbow.n;
+	rbow.t = (int)(rbow.f * 255);
+	if (rbow.n == 0)
+		rbow.c = ft_rgb_to_color(0, rbow.t, 0);
+	else if (rbow.n == 1)
+		rbow.c = ft_rgb_to_color(255 - rbow.t, 255, 0);
+	else if (rbow.n == 2)
+		rbow.c = ft_rgb_to_color(0, 255, rbow.t);
+	else if (rbow.n == 3)
+		rbow.c = ft_rgb_to_color(0, 255 - rbow.t, 255);
+	else if (rbow.n == 4)
+		rbow.c = ft_rgb_to_color(rbow.t, 0, 255);
+	else if (rbow.n == 5)
+		rbow.c = ft_rgb_to_color(255, 0, 255 - rbow.t);
 	else
-		c = ft_rgb_to_color(0, 0, 0);
-	all->img.clrline = ft_color_to_int(c);
+		rbow.c = ft_rgb_to_color(0, 0, 0);
+	all->img.clrline = ft_color_to_int(rbow.c);
 }
 
 void		color_fill(int t, t_color *color, t_pwr p)
 {
 	if (0 <= t && t < 60)
-		color->r = -0.00018094381200185858 * p.t3 + 0.011590107725603593 * p.t2 +
-		0.1833371893610704 * t + 52;
+		color->r = -0.00018094381200185858 * p.t3 + 0.011590107725603593 * p.t2
+		+ 0.1833371893610704 * t + 52;
 	else if (60 <= t && t < 104)
 		color->r = -0.0013237924865831855 * p.t3 + 0.2778533094812168 * p.t2 +
 		-19.741144901609974 * t + 535.1359570661889;
@@ -113,7 +108,6 @@ UINT		rainbow_cycle(int t)
 	t_pwr	pwr;
 	t_color	color;
 
-	//pwr.t1 = (float)t;
 	pwr.t2 = t * t;
 	pwr.t3 = pwr.t2 * t;
 	color_fill(t, &color, pwr);
@@ -154,8 +148,10 @@ void		cartridge(t_all *all)
 	mlx_string_put(all->env.mlx, all->env.win, 10, 110, 0xF65B0A,\
 		"Navigation : Arrows .");
 	mlx_string_put(all->env.mlx, all->env.win, 10, 130, 0xF65B0A,\
-		"Zoom : Scroll Mouse .");
+		"Change color rainbow : c .");
 	mlx_string_put(all->env.mlx, all->env.win, 10, 150, 0xF65B0A,\
+		"Zoom : Scroll Mouse .");
+	mlx_string_put(all->env.mlx, all->env.win, 10, 170, 0xF65B0A,\
 		"Exit : esc .");
 }
 
@@ -190,137 +186,107 @@ void		color_renorm(t_all *all, t_pos pt)
 	}
 }
 
-void		color_frac(int	i, t_all *all)
+void		color_frac(int i, t_all *all)
 {
 	if (all->color > 0)
 	{
 		if (i == all->ite_max)
 			all->img.clrline = 0x151515;
-			else
-				all->img.clrline = all->colors[i & 255];
+		else
+			all->img.clrline = all->colors[i & 255];
 	}
 	else
 		rainbow_color(((double)i * 4.0) / (double)all->ite_max, all);
 }
 
+void		frac_calc(t_frac *frac, double c_r, double c_i, int ite_max)
+{
+	frac->d_r = frac->z_r * frac->z_r;
+	frac->d_i = frac->z_i * frac->z_i;
+	while ((frac->d_r + frac->d_i) < 4 && frac->i < ite_max)
+	{
+		frac->z_i = (2 * frac->z_r * frac->z_i) + c_i;
+		frac->z_r = frac->d_r - frac->d_i + c_r;
+		frac->d_r = frac->z_r * frac->z_r;
+		frac->d_i = frac->z_i * frac->z_i;
+		frac->i++;
+	}
+}
+
 void		frac_mandelbrot(t_all *all)
 {
-	t_pos	pt;
-	double	x1;
-	double	y1;
-	double	c_r;
-	double	c_i;
-	double	z_r;
-	double	z_i;
-	double	d_r;
-	double	d_i;
-	int		i;
+	t_frac	frac;
 
-	pt.x = 0;
-	x1 = -2.1;
-	y1 = -1.2;
-	while (pt.x < WIN_SZ_X)
+	frac.pt.x = 0;
+	frac.x1 = -2.1;
+	frac.y1 = -1.2;
+	while (frac.pt.x < WIN_SZ_X)
 	{
-		pt.y = 0;
-		c_r = ((pt.x + all->off.x) / all->zoom) + x1;
-		c_i = ((pt.y + all->off.y) / all->zoom) + y1;
-		while (pt.y < WIN_SZ_Y)
+		frac.pt.y = 0;
+		frac.c_r = ((frac.pt.x + all->off.x) / all->zoom) + frac.x1;
+		frac.c_i = ((frac.pt.y + all->off.y) / all->zoom) + frac.y1;
+		while (frac.pt.y < WIN_SZ_Y)
 		{
-			c_i += 1 / all->zoom;
-			z_r = c_r;
-			z_i = c_i;
-			d_r = z_r * z_r;
-			d_i = z_i * z_i;
-			i = 0;
-			while ((d_r + d_i) < 4 && i < all->ite_max)
-			{
-				z_i = (2 * z_r * z_i) + c_i;
-				z_r = d_r - d_i + c_r;
-				d_r = z_r * z_r;
-				d_i = z_i * z_i;
-				i++;
-			}
-			color_frac(i, all);
-			ft_put_pxl(all, &pt);
-			pt.y++;
+			frac.z_r = frac.c_r;
+			frac.z_i = frac.c_i;
+			frac.c_i += 1 / all->zoom;
+			frac.i = 0;
+			frac_calc(&frac, frac.c_r, frac.c_i, all->ite_max);
+			color_frac(frac.i, all);
+			ft_put_pxl(all, &frac.pt);
+			frac.pt.y++;
 		}
-		pt.x++;
+		frac.pt.x++;
 	}
 }
 
 void		frac_julia(t_all *all)
 {
-	t_pos	pt;
-	double	x1;
-	double	y1;
-	double	z_r;
-	double	z_i;
-	double	tmp;
-	int		i;
+	t_frac	frac;
 
-	x1 = -1.4;
-	y1 = -1.2;
-	pt.x = 0;
-	while (pt.x < WIN_SZ_X)
+	frac.x1 = -1.4;
+	frac.y1 = -1.2;
+	frac.pt.x = 0;
+	while (frac.pt.x < WIN_SZ_X)
 	{
-		pt.y = 0;
-		while (pt.y < WIN_SZ_Y)
+		frac.pt.y = 0;
+		while (frac.pt.y < WIN_SZ_Y)
 		{
-			z_r = (pt.x + all->off.x) / all->zoom + x1;
-			z_i = (pt.y + all->off.y) / all->zoom + y1;
-			i = 0;
-			while ((z_r * z_r + z_i * z_i) < 4 && i < all->ite_max)
-			{
-				tmp = z_r;
-				z_r = (z_r * z_r) - (z_i * z_i) + all->c_r;
-				z_i = (2 * tmp * z_i) + all->c_i;
-				i++;
-			}
-			color_frac(i, all);
-			ft_put_pxl(all, &pt);
-			pt.y++;
+			frac.z_r = (frac.pt.x + all->off.x) / all->zoom + frac.x1;
+			frac.z_i = (frac.pt.y + all->off.y) / all->zoom + frac.y1;
+			frac.i = 0;
+			frac_calc(&frac, all->c_r, all->c_i, all->ite_max);
+			color_frac(frac.i, all);
+			ft_put_pxl(all, &frac.pt);
+			frac.pt.y++;
 		}
-		pt.x++;
+		frac.pt.x++;
 	}
 }
 
 void		frac_douady(t_all *all)
 {
-	t_pos	pt;
-	double	x1;
-	double	y1;
-	double	c_r;
-	double	c_i;
-	double	z_r;
-	double	z_i;
-	double	tmp;
-	int		i;
+	t_frac	frac;
 
-	x1 = -1.4;
-	y1 = -1.2;
-	c_r = -0.123;
-	c_i = 0.745;
-	pt.x = 0;
-	while (pt.x < WIN_SZ_X)
+	frac.x1 = -1.4;
+	frac.y1 = -1.2;
+	frac.c_r = -0.123;
+	frac.c_i = 0.745;
+	frac.pt.x = 0;
+	while (frac.pt.x < WIN_SZ_X)
 	{
-		pt.y = 0;
-		while (pt.y < WIN_SZ_Y)
+		frac.pt.y = 0;
+		while (frac.pt.y < WIN_SZ_Y)
 		{
-			z_r = (pt.x + all->off.x) / all->zoom + x1;
-			z_i = (pt.y + all->off.y) / all->zoom + y1;
-			i = 0;
-			while ((z_r * z_r + z_i * z_i) < 4 && i < all->ite_max)
-			{
-				tmp = z_r;
-				z_r = (z_r * z_r) - (z_i * z_i) + c_r;
-				z_i = (2 * tmp * z_i) + c_i;
-				i++;
-			}
-			color_frac(i, all);
-			ft_put_pxl(all, &pt);
-			pt.y++;
+			frac.z_r = (frac.pt.x + all->off.x) / all->zoom + frac.x1;
+			frac.z_i = (frac.pt.y + all->off.y) / all->zoom + frac.y1;
+			frac.i = 0;
+			frac_calc(&frac, frac.c_r, frac.c_i, all->ite_max);
+			color_frac(frac.i, all);
+			ft_put_pxl(all, &frac.pt);
+			frac.pt.y++;
 		}
-		pt.x++;
+		frac.pt.x++;
 	}
 }
 
@@ -460,12 +426,7 @@ int			expose_hook(t_all *all)
 
 int			key_hook(int keycode, t_all *all)
 {
-	if (keycode == 65307)
-	{
-		all->re = -1;
-		return (0);
-	}
-	else if (keycode == 'a' && all->ite_max < 20000)
+	if (keycode == 'a' && all->ite_max < 20000)
 		all->ite_max += 200;
 	else if (keycode == 'd' && all->ite_max > 200)
 		all->ite_max -= 200;
@@ -487,7 +448,7 @@ int			key_hook(int keycode, t_all *all)
 		all->filter = -all->filter;
 	else if (keycode == 'c')
 		all->color = -all->color;
-	all->re = 1;
+	all->re = keycode == 65307 ? -1 : 1;
 	return (0);
 }
 

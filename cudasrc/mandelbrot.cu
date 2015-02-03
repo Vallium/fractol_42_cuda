@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cudahead.h                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aalliot <aalliot@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2015/02/03 16:08:27 by aalliot           #+#    #+#             */
+/*   Updated: 2015/02/03 16:08:30 by aalliot          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include <stdlib.h>
 #include <cuda.h>
@@ -16,8 +27,8 @@ __global__ void		mandelbrot(int	*d_tab, double offx, double offy, double zoom, i
 	double	d_i;
 	double	d_r;
 	int		i;
-	int		row;  // WIDTH
-	int		col;  // HEIGHT
+	int		row;
+	int		col;
 	int		index;
 	row = blockIdx.y * blockDim.y + threadIdx.y;
 	col = blockIdx.x * blockDim.x + threadIdx.x;
