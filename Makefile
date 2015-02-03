@@ -14,20 +14,19 @@ NAME	= fractol
 
 HDRDIR	= header
 SRCDIR	= src
+OBJDIR	= obj
 CUDASRC	= cudasrc
 CUDAHDR	= cudaheader
+CUDAOBJ	= cudaobj
 
-CSRC	=	$(CUDASRC)/mandelbrot.cu	\
-			$(CUDASRC)/julia.cu			\
-			$(CUDASRC)/douady.cu
+SRC	=	main.c
 
-COBJ	=	mandelbrot.o	\
-			julia.o			\
-			douady.o
+CSRC	=	mandelbrot.cu	\
+			julia.cu		\
+			douady.cu
 
-SOURCE	=	$(SRCDIR)/main.c
-
-OBJ		=	main.o
+OBJ		=	$(patsubst %.c,$(OBJDIR)/%.o,$(SRC))
+SCUDA	=	$(patsubst %.cu,$(CUDAOBJ)/%.o,$(CSRC))
 
 FLAGS	= -Wall -Werror -Wextra -iquote header -framework OpenGL -framework AppKit
 
@@ -40,27 +39,27 @@ NORMINETTE	= ~/project/colorminette/colorminette
 
 CUDA			=/Developer/NVIDIA/CUDA-5.5
 NVCC			=/Developer/NVIDIA/CUDA-5.5/bin/nvcc
-NVCC_C			= -ccbin /usr/bin/clang -m64
+NVCC_C			= -ccbin /usr/bin/clang -m64 -Xcompiler -arch -Xcompiler x86_64 -Xcompiler -stdlib=libstdc++
 NVCC_FRAMEWORK	= -Xlinker -framework,OpenGL -Xlinker -framework,AppKit
 NVCC_LIB		= -Xlinker -rpath -Xlinker /Developer/NVIDIA/CUDA-5.5/lib
-NVCC_ARCH		= -Xcompiler -arch -Xcompiler x86_64
-NVCC_STD		= -Xcompiler -stdlib=libstdc++
 NVCC_VCODE		= -gencode arch=compute_13,code=sm_13 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=\"sm_35,compute_35\"
 NVCC_FLAGS		= -Xcompiler -Werror -Xcompiler -Wall -Xcompiler -Wextra
 
+$(shell mkdir -p $(OBJDIR) $(CUDAOBJ))
+
 all: $(NAME)
 
-$(NAME): $(LIBFT) $(OBJ) $(COBJ)
-	$(NVCC) $(NVCC_C) $(NVCC_ARCH) $(NVCC_STD) $(NVCC_FRAMEWORK) $(NVCC_LIB) -o $(NAME) $(OBJ) $(LIBFT) $(COBJ) $(LIB)
+$(NAME): $(LIBFT) $(OBJ) $(SCUDA)
+	$(NVCC) -O4 $(NVCC_C) $(NVCC_FRAMEWORK) $(NVCC_LIB) -o $(NAME) $(OBJ) $(LIBFT) $(SCUDA) $(LIB)
 
 $(LIBFT):
 	make -C $(LIBDIR)
 
-$(COBJ):
-	$(NVCC) -O4 $(NVCC_C) $(NVCC_ARCH) $(NVCC_STD) $(NVCC_VCODE) $(NVCC_FLAGS) -I $(CUDA)/include -I header -I $(CUDAHDR) -c $(CSRC)
+$(CUDAOBJ)/%.o: $(CUDASRC)/%.cu
+	$(NVCC) -O4 $(NVCC_C) $(NVCC_VCODE) $(NVCC_FLAGS) -I $(CUDA)/include -I header -I $(CUDAHDR) -o $@ -c $<
 
-$(OBJ):
-	gcc -O4 $(FLAGS) -iquote $(LIBDIR) -iquote $(CUDAHDR) -c $(SOURCE) $(LIB) -I libft/includes
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	gcc -O4 $(FLAGS) $(LIB) -I libft/includes -iquote $(LIBDIR) -iquote $(CUDAHDR) -o $@ -c $<
 
 .PHONY: clean fclean re norme
 
@@ -69,9 +68,11 @@ norme:
 	@$(NORMINETTE) $(SRCDIR)/ $(HDRDIR)/
 
 clean:
-	rm -f $(OBJ) $(COBJ)
+	rm -f $(OBJ) $(SCUDA)
+	make -C libft/ clean
 
 fclean: clean
 	rm -f $(NAME)
+	make -C libft/ fclean
 
 re: fclean all

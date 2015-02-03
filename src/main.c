@@ -10,12 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "cudahead.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include "fractol.h"
 
-t_color		ft_rgb_to_color(unsigned char r, unsigned char g, unsigned char b)
+t_color		ft_rgb_to_color(UCHAR r, UCHAR g, UCHAR b)
 {
 	t_color		color;
 
