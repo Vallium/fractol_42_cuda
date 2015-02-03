@@ -18,6 +18,9 @@ OBJDIR	= obj
 CUDASRC	= cudasrc
 CUDAHDR	= cudaheader
 CUDAOBJ	= cudaobj
+LIBHDR	= libft/includes
+LIBDIR	= libft/
+LIBFT	= $(LIBDIR)libft.a
 
 SRC		=	main.c			\
 			color.c			\
@@ -34,15 +37,9 @@ CSRC	=	mandelbrot.cu	\
 OBJ		=	$(patsubst %.c,$(OBJDIR)/%.o,$(SRC))
 SCUDA	=	$(patsubst %.cu,$(CUDAOBJ)/%.o,$(CSRC))
 
-FLAGS	= -Wall -Werror -Wextra -iquote header -framework OpenGL -framework AppKit
-
-LIBHDR	= libft/includes
-LIBDIR	= libft/
-LIBFT	= $(LIBDIR)libft.a
-
-
 NORMINETTE	= ~/project/colorminette/colorminette
 
+FLAGS	= -Wall -Werror -Wextra -iquote header -framework OpenGL -framework AppKit
 LIB				= -L/usr/X11/lib -lmlx -lXext -lX11 -I /opt/X11/include/
 CUDA			= /Developer/NVIDIA/CUDA-5.5
 NVCC			= /Developer/NVIDIA/CUDA-5.5/bin/nvcc
