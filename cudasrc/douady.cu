@@ -5,7 +5,7 @@
 # define WIN_SZ_X 1024
 # define WIN_SZ_Y 1024
 
-__global__ void		mandelbrot(int	*d_tab, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
+__global__ void		douady(int	*d_tab, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
 {
 	double	x1;
 	double	y1;
@@ -13,8 +13,7 @@ __global__ void		mandelbrot(int	*d_tab, double offx, double offy, double zoom, i
 	double	c_i;
 	double	z_r;
 	double	z_i;
-	double	d_i;
-	double	d_r;
+	double	tmp;
 	int		i;
 	int		row;  // WIDTH
 	int		col;  // HEIGHT
@@ -25,27 +24,24 @@ __global__ void		mandelbrot(int	*d_tab, double offx, double offy, double zoom, i
 	if(col >= winszx || row >= winszy)
 		return;
 
-	x1 = -2.1;
+	x1 = -1.4;
 	y1 = -1.2;
-	c_r = (((double)col + offx) / zoom) + x1;
-	c_i = (((double)row + offy) / zoom) + y1;
-	z_r = c_r;
-	z_i = c_i;
-	d_r = z_r * z_r;
-	d_i = z_i * z_i;
+	c_r = -0.123;
+	c_i = 0.745;
+	z_r = (((double)col + offx) / zoom) + x1;
+	z_i = (((double)row + offy) / zoom) + y1;
 	i = 0;
-	while((d_r + d_i) < 4 && i < ite_max)
+	while((z_r * z_r + z_i * z_i) < 4 && i < ite_max)
 	{
-		z_i = (2 * z_r * z_i) + c_i;
-		z_r = d_r - d_i + c_r;
-		d_r = z_r * z_r;
-		d_i = z_i * z_i;
+		tmp = z_r;
+		z_r = (z_r * z_r) - (z_i * z_i) + c_r;
+		z_i = (2 * tmp * z_i) + c_i;
 		i++;
 	}
 	d_tab[index] = i;
 }
 
-extern "C" void			call_mandelbrot(int *tab, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
+extern "C" void		call_douady(int *tab, double offx, double offy, double zoom, int ite_max, int winszx, int winszy)
 {
 	int		*d_tab;
 	int		size;
@@ -54,7 +50,7 @@ extern "C" void			call_mandelbrot(int *tab, double offx, double offy, double zoo
 
 	size = WIN_SZ_Y * WIN_SZ_X * sizeof(int);
 	cudaMalloc((void **)&d_tab, size);
-	mandelbrot<<<grid_size,block_size>>>(d_tab, offx, offy, zoom, ite_max, winszx, winszy);
+	douady<<<grid_size,block_size>>>(d_tab, offx, offy, zoom, ite_max, winszx, winszy);
 
 	cudaMemcpy(tab, d_tab, size, cudaMemcpyDeviceToHost);
 	cudaFree(d_tab);
