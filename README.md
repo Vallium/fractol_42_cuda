@@ -2,8 +2,8 @@ fract'ol
 =========
 
 - usage: ```./fractol [-cpu / -gpu] [Fractal Name ...]```
-	* ```-cpu``` = Use cpu computing.
-	* ```-gpu``` = Use CUDA Parallel Computing Architecture.
+	* ```-cpu```  use cpu computing.
+	* ```-gpu```  use CUDA Parallel Computing Architecture.
 - fractals supported: mandelbrot, julia, douady
 
 ![alt tag](img/fractol.gif)
